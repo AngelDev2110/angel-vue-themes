@@ -1,0 +1,44 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { usePaletteStore } from '../paletteStore'
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+})
+
+describe('usePaletteStore', () => {
+  it('starts with a default base color and a two-color complementary palette', () => {
+    const store = usePaletteStore()
+
+    expect(store.baseColor).toBe('#3366cc')
+    expect(store.palette).toHaveLength(2)
+    expect(store.palette[0]).toBe(store.baseColor)
+  })
+
+  it('recomputes the palette and records history when the base color changes', () => {
+    const store = usePaletteStore()
+    const previousBaseColor = store.baseColor
+
+    store.setBaseColor('#cc3366')
+
+    expect(store.baseColor).toBe('#cc3366')
+    expect(store.palette[0]).toBe('#cc3366')
+    expect(store.history).toEqual([previousBaseColor])
+  })
+
+  it('does nothing when setting the same base color again', () => {
+    const store = usePaletteStore()
+
+    store.setBaseColor(store.baseColor)
+
+    expect(store.history).toEqual([])
+  })
+
+  it('recomputes the palette size when the harmony type changes', () => {
+    const store = usePaletteStore()
+
+    store.setHarmonyType('triadic')
+
+    expect(store.palette).toHaveLength(3)
+  })
+})
