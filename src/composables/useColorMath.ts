@@ -1,3 +1,5 @@
+import { clamp, dotProduct3, multiplyMatrix3, type Matrix3, type Vector3 } from '../helpers/math'
+
 export interface RGB {
   r: number
   g: number
@@ -20,25 +22,6 @@ interface LinearRgb {
   r: number
   g: number
   b: number
-}
-
-type Vector3 = readonly [number, number, number]
-type Matrix3 = readonly [Vector3, Vector3, Vector3]
-
-function dotProduct3(a: Vector3, b: Vector3): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
-}
-
-function multiplyMatrix3(matrix: Matrix3, vector: Vector3): Vector3 {
-  return [
-    dotProduct3(matrix[0], vector),
-    dotProduct3(matrix[1], vector),
-    dotProduct3(matrix[2], vector),
-  ]
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max)
 }
 
 export function hexToRgb(hex: string): RGB {
