@@ -63,3 +63,5 @@ const HARMONY_GENERATORS: Record<HarmonyType, (base: Oklch) => Oklch[]> = {
 export function generateHarmony(type: HarmonyType, base: Oklch): Oklch[] {
   return HARMONY_GENERATORS[type](base)
 }
+
+export const HARMONY_TYPES = Object.keys(HARMONY_GENERATORS) as HarmonyType[]
