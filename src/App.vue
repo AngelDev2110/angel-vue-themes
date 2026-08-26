@@ -1,11 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import ColorPicker from './components/controls/ColorPicker.vue'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <main>
+    <h1>Palette & Theme Editor</h1>
+    <ColorPicker />
+  </main>
 </template>
 
 <style scoped></style>
