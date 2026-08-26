@@ -1,0 +1,35 @@
+import { describe, it, expect, beforeEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import PaletteSwatches from '../PaletteSwatches.vue'
+import { usePaletteStore } from '../../../stores/paletteStore'
+
+beforeEach(() => {
+  setActivePinia(createPinia())
+})
+
+describe('PaletteSwatches', () => {
+  it('renders one swatch per color in the palette', () => {
+    const wrapper = mount(PaletteSwatches)
+    const store = usePaletteStore()
+
+    expect(wrapper.findAll('li')).toHaveLength(store.palette.length)
+  })
+
+  it('shows each color hex as text', () => {
+    const wrapper = mount(PaletteSwatches)
+    const store = usePaletteStore()
+
+    expect(wrapper.text()).toContain(store.palette[0])
+  })
+
+  it('re-renders with the new palette size when the harmony type changes', async () => {
+    const wrapper = mount(PaletteSwatches)
+    const store = usePaletteStore()
+
+    store.setHarmonyType('triadic')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('li')).toHaveLength(3)
+  })
+})
