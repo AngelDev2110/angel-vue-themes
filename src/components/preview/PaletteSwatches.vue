@@ -7,8 +7,8 @@ const store = usePaletteStore()
 <template>
   <ul class="palette-swatches">
     <li
-      v-for="color in store.palette"
-      :key="color"
+      v-for="(color, index) in store.palette"
+      :key="index"
       class="swatch"
       :style="{ backgroundColor: color }"
     >
