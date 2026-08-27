@@ -32,4 +32,16 @@ describe('PaletteSwatches', () => {
 
     expect(wrapper.findAll('li')).toHaveLength(3)
   })
+
+  it('renders one swatch per entry even when lightness clamping produces duplicate colors', async () => {
+    const wrapper = mount(PaletteSwatches)
+    const store = usePaletteStore()
+
+    store.setHarmonyType('monochromatic')
+    store.setBaseColor('#ffffff')
+    await wrapper.vm.$nextTick()
+
+    expect(new Set(store.palette).size).toBeLessThan(store.palette.length)
+    expect(wrapper.findAll('li')).toHaveLength(store.palette.length)
+  })
 })
