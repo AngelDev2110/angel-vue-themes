@@ -41,4 +41,23 @@ describe('usePaletteStore', () => {
 
     expect(store.palette).toHaveLength(3)
   })
+
+  it('derives semantic roles from the palette and harmony type', () => {
+    const store = usePaletteStore()
+
+    expect(store.semanticPalette).toEqual({
+      primary: store.palette[0],
+      secondary: store.palette[1],
+    })
+
+    store.setHarmonyType('monochromatic')
+
+    expect(Object.keys(store.semanticPalette)).toEqual([
+      'primary-1',
+      'primary-2',
+      'primary-3',
+      'primary-4',
+      'primary-5',
+    ])
+  })
 })

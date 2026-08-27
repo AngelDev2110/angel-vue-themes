@@ -1,11 +1,11 @@
 import { watch } from 'vue'
 import { usePaletteStore } from '../stores/paletteStore'
 
-const PALETTE_VARIABLE_PREFIX = '--palette-color-'
+const COLOR_VARIABLE_PREFIX = '--color-'
 
-export function buildPaletteVariables(palette: string[]): Record<string, string> {
+export function buildPaletteVariables(roles: Record<string, string>): Record<string, string> {
   return Object.fromEntries(
-    palette.map((color, index) => [`${PALETTE_VARIABLE_PREFIX}${index + 1}`, color]),
+    Object.entries(roles).map(([role, color]) => [`${COLOR_VARIABLE_PREFIX}${role}`, color]),
   )
 }
 
@@ -22,9 +22,9 @@ export function useThemeInjector(target: HTMLElement = document.documentElement)
   let appliedVariableNames: string[] = []
 
   watch(
-    () => store.palette,
-    (palette) => {
-      const variables = buildPaletteVariables(palette)
+    () => store.semanticPalette,
+    (semanticPalette) => {
+      const variables = buildPaletteVariables(semanticPalette)
       const nextVariableNames = Object.keys(variables)
       const staleVariableNames = appliedVariableNames.filter(
         (name) => !nextVariableNames.includes(name),

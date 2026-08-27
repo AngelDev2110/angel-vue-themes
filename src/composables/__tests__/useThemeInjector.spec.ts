@@ -11,10 +11,10 @@ import {
 import { usePaletteStore } from '../../stores/paletteStore'
 
 describe('buildPaletteVariables', () => {
-  it('names each variable by its 1-based position in the palette', () => {
-    expect(buildPaletteVariables(['#111111', '#222222'])).toEqual({
-      '--palette-color-1': '#111111',
-      '--palette-color-2': '#222222',
+  it('names each variable after its semantic role', () => {
+    expect(buildPaletteVariables({ primary: '#111111', secondary: '#222222' })).toEqual({
+      '--color-primary': '#111111',
+      '--color-secondary': '#222222',
     })
   })
 })
@@ -23,11 +23,11 @@ describe('applyCssVariables / removeCssVariables', () => {
   it('sets and then removes a custom property on the target element', () => {
     const target = document.createElement('div')
 
-    applyCssVariables(target, { '--palette-color-1': '#3366cc' })
-    expect(target.style.getPropertyValue('--palette-color-1')).toBe('#3366cc')
+    applyCssVariables(target, { '--color-primary': '#3366cc' })
+    expect(target.style.getPropertyValue('--color-primary')).toBe('#3366cc')
 
-    removeCssVariables(target, ['--palette-color-1'])
-    expect(target.style.getPropertyValue('--palette-color-1')).toBe('')
+    removeCssVariables(target, ['--color-primary'])
+    expect(target.style.getPropertyValue('--color-primary')).toBe('')
   })
 })
 
@@ -36,7 +36,7 @@ describe('useThemeInjector', () => {
     setActivePinia(createPinia())
   })
 
-  it('applies the initial palette and cleans up stale variables when it shrinks', async () => {
+  it('applies the initial palette and cleans up stale variables when the role set changes', async () => {
     const target = document.createElement('div')
     const TestHost = defineComponent({
       setup() {
@@ -49,15 +49,23 @@ describe('useThemeInjector', () => {
     const store = usePaletteStore()
     await nextTick()
 
-    expect(target.style.getPropertyValue('--palette-color-1')).toBe(store.palette[0])
-    expect(target.style.getPropertyValue('--palette-color-2')).toBe(store.palette[1])
+    expect(target.style.getPropertyValue('--color-primary')).toBe(store.semanticPalette.primary)
+    expect(target.style.getPropertyValue('--color-secondary')).toBe(
+      store.semanticPalette.secondary,
+    )
 
     store.setHarmonyType('monochromatic')
     await nextTick()
-    expect(target.style.getPropertyValue('--palette-color-5')).toBe(store.palette[4])
+    expect(target.style.getPropertyValue('--color-primary-5')).toBe(
+      store.semanticPalette['primary-5'],
+    )
+    expect(target.style.getPropertyValue('--color-secondary')).toBe('')
 
     store.setHarmonyType('complementary')
     await nextTick()
-    expect(target.style.getPropertyValue('--palette-color-5')).toBe('')
+    expect(target.style.getPropertyValue('--color-primary-5')).toBe('')
+    expect(target.style.getPropertyValue('--color-secondary')).toBe(
+      store.semanticPalette.secondary,
+    )
   })
 })

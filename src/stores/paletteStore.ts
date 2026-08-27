@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { hexToOklch, oklchToHex } from '../composables/useColorMath'
 import { generateHarmony, type HarmonyType } from '../composables/useHarmonyGenerator'
+import { mapPaletteToRoles } from '../composables/useSemanticPalette'
 
 const DEFAULT_BASE_COLOR = '#3366cc'
 const DEFAULT_HARMONY_TYPE: HarmonyType = 'complementary'
@@ -15,6 +16,8 @@ export const usePaletteStore = defineStore('palette', () => {
   const palette = computed(() =>
     generateHarmony(harmonyType.value, hexToOklch(baseColor.value)).map(oklchToHex),
   )
+
+  const semanticPalette = computed(() => mapPaletteToRoles(harmonyType.value, palette.value))
 
   function pushToHistory(hex: string) {
     if (history.value[0] === hex) return
@@ -33,5 +36,13 @@ export const usePaletteStore = defineStore('palette', () => {
     harmonyType.value = type
   }
 
-  return { baseColor, harmonyType, history, palette, setBaseColor, setHarmonyType }
+  return {
+    baseColor,
+    harmonyType,
+    history,
+    palette,
+    semanticPalette,
+    setBaseColor,
+    setHarmonyType,
+  }
 })
