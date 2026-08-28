@@ -19,6 +19,7 @@ describe('mapPaletteToRoles', () => {
     const palette = ['#111111', '#222222', '#333333', '#444444', '#555555']
 
     expect(mapPaletteToRoles('monochromatic', palette)).toEqual({
+      primary: '#111111',
       'primary-1': '#111111',
       'primary-2': '#222222',
       'primary-3': '#333333',

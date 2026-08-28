@@ -5,6 +5,7 @@ import { hexToOklch, oklchToHex } from '../composables/useColorMath'
 import { generateHarmony, type HarmonyType } from '../composables/useHarmonyGenerator'
 import { mapPaletteToRoles } from '../composables/useSemanticPalette'
 import { generateNeutralRoles, type ThemeMode } from '../composables/useNeutralPalette'
+import { generateOnColorRoles } from '../composables/useOnColorRoles'
 
 const DEFAULT_BASE_COLOR = '#3366cc'
 const DEFAULT_HARMONY_TYPE: HarmonyType = 'complementary'
@@ -21,6 +22,7 @@ export const usePaletteStore = defineStore('palette', () => {
   )
 
   const semanticPalette = computed(() => mapPaletteToRoles(harmonyType.value, palette.value))
+  const onColorPalette = computed(() => generateOnColorRoles(semanticPalette.value))
 
   const themeModePreference = computed(() => colorMode.value)
   const resolvedThemeMode = computed(() => colorMode.state.value)
@@ -31,6 +33,7 @@ export const usePaletteStore = defineStore('palette', () => {
 
   const themeVariables = computed(() => ({
     ...semanticPalette.value,
+    ...onColorPalette.value,
     ...neutralPalette.value,
   }))
 
@@ -61,6 +64,7 @@ export const usePaletteStore = defineStore('palette', () => {
     history,
     palette,
     semanticPalette,
+    onColorPalette,
     neutralPalette,
     themeVariables,
     themeModePreference,
