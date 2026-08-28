@@ -4,6 +4,7 @@ import ThemeModeToggle from './components/controls/ThemeModeToggle.vue'
 import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
 import AppCard from './components/preview/AppCard.vue'
+import AppBadge from './components/preview/AppBadge.vue'
 import { useThemeInjector } from './composables/useThemeInjector'
 import { usePaletteStore } from './stores/paletteStore'
 
@@ -24,8 +25,19 @@ useThemeInjector()
       <AppButton v-if="store.semanticPalette.tertiary" variant="tertiary">Tertiary</AppButton>
     </div>
 
+    <div class="badge-row">
+      <AppBadge variant="primary">Primary</AppBadge>
+      <AppBadge v-if="store.semanticPalette.secondary" variant="secondary">Secondary</AppBadge>
+      <AppBadge v-if="store.semanticPalette.tertiary" variant="tertiary">Tertiary</AppBadge>
+    </div>
+
     <AppCard class="demo-card">
-      <template #title>Upgrade to Pro</template>
+      <template #title>
+        <span class="demo-card__title-row">
+          Upgrade to Pro
+          <AppBadge v-if="store.semanticPalette.secondary" variant="secondary">New</AppBadge>
+        </span>
+      </template>
       Get more storage and priority support.
       <div class="demo-card__actions">
         <AppButton variant="primary">Upgrade</AppButton>
@@ -48,7 +60,8 @@ main {
   padding: 2rem;
 }
 
-.button-row {
+.button-row,
+.badge-row {
   display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
@@ -57,6 +70,12 @@ main {
 .demo-card {
   max-width: 20rem;
   margin-top: 1.5rem;
+}
+
+.demo-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .demo-card__actions {
