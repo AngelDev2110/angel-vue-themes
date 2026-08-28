@@ -53,6 +53,10 @@ describe('useThemeInjector', () => {
     expect(target.style.getPropertyValue('--color-secondary')).toBe(
       store.semanticPalette.secondary,
     )
+    expect(target.style.getPropertyValue('--color-background')).toBe(
+      store.neutralPalette.background,
+    )
+    expect(target.style.getPropertyValue('--color-text')).toBe(store.neutralPalette.text)
 
     store.setHarmonyType('monochromatic')
     await nextTick()
@@ -67,5 +71,28 @@ describe('useThemeInjector', () => {
     expect(target.style.getPropertyValue('--color-secondary')).toBe(
       store.semanticPalette.secondary,
     )
+  })
+
+  it('re-derives neutral variables when the theme mode changes', async () => {
+    const target = document.createElement('div')
+    const TestHost = defineComponent({
+      setup() {
+        useThemeInjector(target)
+      },
+      template: '<div />',
+    })
+
+    mount(TestHost)
+    const store = usePaletteStore()
+    await nextTick()
+    const lightBackground = target.style.getPropertyValue('--color-background')
+
+    store.setThemeMode('dark')
+    await nextTick()
+
+    expect(target.style.getPropertyValue('--color-background')).toBe(
+      store.neutralPalette.background,
+    )
+    expect(target.style.getPropertyValue('--color-background')).not.toBe(lightBackground)
   })
 })
