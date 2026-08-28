@@ -22,9 +22,9 @@ export function useThemeInjector(target: HTMLElement = document.documentElement)
   let appliedVariableNames: string[] = []
 
   watch(
-    () => store.semanticPalette,
-    (semanticPalette) => {
-      const variables = buildPaletteVariables(semanticPalette)
+    () => store.themeVariables,
+    (themeVariables) => {
+      const variables = buildPaletteVariables(themeVariables)
       const nextVariableNames = Object.keys(variables)
       const staleVariableNames = appliedVariableNames.filter(
         (name) => !nextVariableNames.includes(name),

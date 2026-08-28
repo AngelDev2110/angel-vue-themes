@@ -1,8 +1,10 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useColorMode } from '@vueuse/core'
 import { hexToOklch, oklchToHex } from '../composables/useColorMath'
 import { generateHarmony, type HarmonyType } from '../composables/useHarmonyGenerator'
 import { mapPaletteToRoles } from '../composables/useSemanticPalette'
+import { generateNeutralRoles, type ThemeMode } from '../composables/useNeutralPalette'
 
 const DEFAULT_BASE_COLOR = '#3366cc'
 const DEFAULT_HARMONY_TYPE: HarmonyType = 'complementary'
@@ -12,12 +14,25 @@ export const usePaletteStore = defineStore('palette', () => {
   const baseColor = ref(DEFAULT_BASE_COLOR)
   const harmonyType = ref<HarmonyType>(DEFAULT_HARMONY_TYPE)
   const history = ref<string[]>([])
+  const colorMode = useColorMode()
 
   const palette = computed(() =>
     generateHarmony(harmonyType.value, hexToOklch(baseColor.value)).map(oklchToHex),
   )
 
   const semanticPalette = computed(() => mapPaletteToRoles(harmonyType.value, palette.value))
+
+  const themeModePreference = computed(() => colorMode.value)
+  const resolvedThemeMode = computed(() => colorMode.state.value)
+
+  const neutralPalette = computed(() =>
+    generateNeutralRoles(hexToOklch(baseColor.value), resolvedThemeMode.value),
+  )
+
+  const themeVariables = computed(() => ({
+    ...semanticPalette.value,
+    ...neutralPalette.value,
+  }))
 
   function pushToHistory(hex: string) {
     if (history.value[0] === hex) return
@@ -36,13 +51,22 @@ export const usePaletteStore = defineStore('palette', () => {
     harmonyType.value = type
   }
 
+  function setThemeMode(mode: ThemeMode | 'auto') {
+    colorMode.value = mode
+  }
+
   return {
     baseColor,
     harmonyType,
     history,
     palette,
     semanticPalette,
+    neutralPalette,
+    themeVariables,
+    themeModePreference,
+    resolvedThemeMode,
     setBaseColor,
     setHarmonyType,
+    setThemeMode,
   }
 })

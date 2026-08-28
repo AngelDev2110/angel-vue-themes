@@ -60,4 +60,26 @@ describe('usePaletteStore', () => {
       'primary-5',
     ])
   })
+
+  it('defaults to light mode and merges brand roles with neutrals into themeVariables', () => {
+    const store = usePaletteStore()
+
+    expect(store.resolvedThemeMode).toBe('light')
+    expect(Object.keys(store.neutralPalette)).toEqual(['background', 'surface', 'text'])
+    expect(store.themeVariables).toEqual({
+      ...store.semanticPalette,
+      ...store.neutralPalette,
+    })
+  })
+
+  it('re-derives neutrals when the theme mode changes', () => {
+    const store = usePaletteStore()
+    const lightBackground = store.neutralPalette.background
+
+    store.setThemeMode('dark')
+
+    expect(store.resolvedThemeMode).toBe('dark')
+    expect(store.themeModePreference).toBe('dark')
+    expect(store.neutralPalette.background).not.toBe(lightBackground)
+  })
 })
