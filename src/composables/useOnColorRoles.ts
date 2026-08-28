@@ -14,6 +14,9 @@ function pickOnColor(hex: string): string {
 
 export function generateOnColorRoles(roles: Record<string, string>): Record<string, string> {
   return Object.fromEntries(
-    Object.entries(roles).map(([role, color]) => [`${ON_COLOR_ROLE_PREFIX}${role}`, pickOnColor(color)]),
+    Object.entries(roles).map(([role, color]) => [
+      `${ON_COLOR_ROLE_PREFIX}${role}`,
+      pickOnColor(color),
+    ]),
   )
 }

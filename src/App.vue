@@ -3,6 +3,7 @@ import ColorPicker from './components/controls/ColorPicker.vue'
 import ThemeModeToggle from './components/controls/ThemeModeToggle.vue'
 import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
+import AppCard from './components/preview/AppCard.vue'
 import { useThemeInjector } from './composables/useThemeInjector'
 import { usePaletteStore } from './stores/paletteStore'
 
@@ -22,6 +23,17 @@ useThemeInjector()
       <AppButton v-if="store.semanticPalette.secondary" variant="secondary">Secondary</AppButton>
       <AppButton v-if="store.semanticPalette.tertiary" variant="tertiary">Tertiary</AppButton>
     </div>
+
+    <AppCard class="demo-card">
+      <template #title>Upgrade to Pro</template>
+      Get more storage and priority support.
+      <div class="demo-card__actions">
+        <AppButton variant="primary">Upgrade</AppButton>
+        <AppButton v-if="store.semanticPalette.secondary" variant="secondary">
+          Maybe later
+        </AppButton>
+      </div>
+    </AppCard>
   </main>
 </template>
 
@@ -37,6 +49,17 @@ main {
 }
 
 .button-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.demo-card {
+  max-width: 20rem;
+  margin-top: 1.5rem;
+}
+
+.demo-card__actions {
   display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
