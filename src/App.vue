@@ -5,6 +5,7 @@ import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
 import AppCard from './components/preview/AppCard.vue'
 import AppBadge from './components/preview/AppBadge.vue'
+import AppNavbar from './components/preview/AppNavbar.vue'
 import { useThemeInjector } from './composables/useThemeInjector'
 import { usePaletteStore } from './stores/paletteStore'
 
@@ -14,10 +15,12 @@ useThemeInjector()
 </script>
 
 <template>
-  <main>
-    <h1>Palette & Theme Editor</h1>
-    <ColorPicker />
+  <AppNavbar>
+    <template #brand>Palette & Theme Editor</template>
     <ThemeModeToggle />
+  </AppNavbar>
+  <main>
+    <ColorPicker />
     <PaletteSwatches />
     <div class="button-row">
       <AppButton variant="primary">Primary</AppButton>
