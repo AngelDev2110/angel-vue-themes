@@ -1,24 +1,29 @@
 <script setup lang="ts">
 import { usePaletteStore } from '../../stores/paletteStore'
+import AppSegmentedControl from './AppSegmentedControl.vue'
 
 const store = usePaletteStore()
 
-const THEME_MODE_PREFERENCES = ['light', 'dark', 'auto'] as const
-type ThemeModePreference = (typeof THEME_MODE_PREFERENCES)[number]
+const THEME_MODE_OPTIONS = [
+  { value: 'light', label: 'light' },
+  { value: 'dark', label: 'dark' },
+  { value: 'auto', label: 'auto' },
+]
 
-function onThemeModeChange(event: Event) {
-  store.setThemeMode((event.target as HTMLSelectElement).value as ThemeModePreference)
+function onThemeModeChange(value: string) {
+  store.setThemeMode(value as 'light' | 'dark' | 'auto')
 }
 </script>
 
 <template>
   <div class="theme-mode-toggle">
-    <label for="theme-mode">Theme</label>
-    <select id="theme-mode" :value="store.themeModePreference" @change="onThemeModeChange">
-      <option v-for="preference in THEME_MODE_PREFERENCES" :key="preference" :value="preference">
-        {{ preference }}
-      </option>
-    </select>
+    <span id="theme-mode" class="theme-mode-toggle__label">Mode</span>
+    <AppSegmentedControl
+      :options="THEME_MODE_OPTIONS"
+      :model-value="store.themeModePreference"
+      aria-labelledby="theme-mode"
+      @update:model-value="onThemeModeChange"
+    />
   </div>
 </template>
 
@@ -26,6 +31,15 @@ function onThemeModeChange(event: Event) {
 .theme-mode-toggle {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
+}
+
+.theme-mode-toggle__label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--color-text) 60%, transparent);
 }
 </style>

@@ -16,3 +16,20 @@ export function multiplyMatrix3(matrix: Matrix3, vector: Vector3): Vector3 {
     dotProduct3(matrix[2], vector),
   ]
 }
+
+export interface Point {
+  x: number
+  y: number
+}
+
+const DEGREES_TO_RADIANS = Math.PI / 180
+const CLOCK_TOP_OFFSET_DEGREES = 90
+
+export function polarToCartesian(center: Point, radius: number, angleDegrees: number): Point {
+  const angleRadians = (angleDegrees - CLOCK_TOP_OFFSET_DEGREES) * DEGREES_TO_RADIANS
+
+  return {
+    x: center.x + radius * Math.cos(angleRadians),
+    y: center.y + radius * Math.sin(angleRadians),
+  }
+}

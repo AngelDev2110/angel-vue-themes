@@ -29,7 +29,10 @@ describe('ColorPicker', () => {
     const wrapper = mount(ColorPicker)
     const store = usePaletteStore()
 
-    await wrapper.get('select').setValue('triadic')
+    const triadicOption = wrapper
+      .findAll('[role="radio"]')
+      .find((option) => option.text() === 'triadic')
+    await triadicOption?.trigger('click')
 
     expect(store.harmonyType).toBe('triadic')
   })

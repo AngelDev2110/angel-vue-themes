@@ -53,6 +53,7 @@ describe('usePaletteStore', () => {
     store.setHarmonyType('monochromatic')
 
     expect(Object.keys(store.semanticPalette)).toEqual([
+      'primary',
       'primary-1',
       'primary-2',
       'primary-3',
@@ -61,13 +62,15 @@ describe('usePaletteStore', () => {
     ])
   })
 
-  it('defaults to light mode and merges brand roles with neutrals into themeVariables', () => {
+  it('defaults to light mode and merges brand, on-color, and neutral roles into themeVariables', () => {
     const store = usePaletteStore()
 
     expect(store.resolvedThemeMode).toBe('light')
     expect(Object.keys(store.neutralPalette)).toEqual(['background', 'surface', 'text'])
+    expect(Object.keys(store.onColorPalette)).toEqual(['on-primary', 'on-secondary'])
     expect(store.themeVariables).toEqual({
       ...store.semanticPalette,
+      ...store.onColorPalette,
       ...store.neutralPalette,
     })
   })

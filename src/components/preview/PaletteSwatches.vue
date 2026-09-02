@@ -1,48 +1,78 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { usePaletteStore } from '../../stores/paletteStore'
+import { hexToOklch } from '../../composables/useColorMath'
 
 const store = usePaletteStore()
+
+const specimens = computed(() =>
+  store.palette.map((hex, index) => {
+    const oklch = hexToOklch(hex)
+
+    return {
+      number: String(index + 1).padStart(2, '0'),
+      hex,
+      l: oklch.l.toFixed(2),
+      c: oklch.c.toFixed(2),
+      h: Math.round(oklch.h),
+    }
+  }),
+)
 </script>
 
 <template>
-  <ul class="palette-swatches">
-    <li
-      v-for="(color, index) in store.palette"
-      :key="index"
-      class="swatch"
-      :style="{ backgroundColor: color }"
-    >
-      <span class="swatch__label">{{ color }}</span>
+  <ol class="palette-swatches">
+    <li v-for="specimen in specimens" :key="specimen.number" class="specimen">
+      <span class="specimen__swatch" :style="{ backgroundColor: specimen.hex }" />
+      <span class="specimen__number">SPECIMEN {{ specimen.number }}</span>
+      <span class="specimen__hex">{{ specimen.hex }}</span>
+      <span class="specimen__oklch"
+        >L{{ specimen.l }} C{{ specimen.c }} H{{ specimen.h }}&deg;</span
+      >
     </li>
-  </ul>
+  </ol>
 </template>
 
 <style scoped>
 .palette-swatches {
   display: flex;
+  flex-wrap: wrap;
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
-.swatch {
+.specimen {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  width: 6rem;
-  height: 6rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 8rem;
 }
 
-.swatch__label {
-  margin-bottom: 0.5rem;
-  padding: 0.125rem 0.375rem;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 0.25rem;
-  font-family: monospace;
-  font-size: 0.75rem;
-  color: #111;
+.specimen__swatch {
+  width: 100%;
+  height: 5rem;
+  border-radius: 0.4rem;
+  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
+}
+
+.specimen__number {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: color-mix(in oklch, var(--color-text) 55%, transparent);
+}
+
+.specimen__hex {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.specimen__oklch {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: color-mix(in oklch, var(--color-text) 65%, transparent);
 }
 </style>

@@ -11,9 +11,12 @@ function mapHueBasedPalette(palette: string[]): Record<string, string> {
 }
 
 function mapTonalScalePalette(palette: string[]): Record<string, string> {
-  return Object.fromEntries(
+  const [baseTone] = palette
+  const scale = Object.fromEntries(
     palette.map((color, index) => [`${TONAL_SCALE_ROLE_PREFIX}-${index + 1}`, color]),
   )
+
+  return baseTone ? { [TONAL_SCALE_ROLE_PREFIX]: baseTone, ...scale } : scale
 }
 
 export function mapPaletteToRoles(
