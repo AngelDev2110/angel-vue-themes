@@ -30,8 +30,9 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .app-navbar__brand-dot {

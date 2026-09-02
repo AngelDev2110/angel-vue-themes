@@ -18,10 +18,12 @@ withDefaults(defineProps<{ variant?: AppBadgeVariant }>(), {
   align-items: center;
   padding: 0.25rem 0.65rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   font-weight: 600;
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   transition:
     background-color 0.2s ease,

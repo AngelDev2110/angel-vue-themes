@@ -35,8 +35,12 @@ const model = defineModel<string>({ default: '' })
 }
 
 .app-input__label {
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--color-text) 60%, transparent);
 }
 
 .app-input__field {

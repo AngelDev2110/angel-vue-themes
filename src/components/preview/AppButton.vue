@@ -21,10 +21,12 @@ withDefaults(defineProps<{ variant?: AppButtonVariant }>(), {
   padding: 0.65rem 1.5rem;
   border: none;
   border-radius: 0.625rem;
-  font-size: 0.9375rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.03em;
   line-height: 1;
+  text-transform: uppercase;
   cursor: pointer;
   user-select: none;
   box-shadow:

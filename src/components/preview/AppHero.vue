@@ -18,8 +18,11 @@
 
 .app-hero__title {
   margin: 0;
+  font-family: var(--font-mono);
   font-size: 2.25rem;
-  line-height: 1.15;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   max-width: 32rem;
 }
 

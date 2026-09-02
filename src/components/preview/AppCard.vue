@@ -23,8 +23,9 @@
 
 .app-card__title {
   margin: 0 0 0.5rem;
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .app-card__body {

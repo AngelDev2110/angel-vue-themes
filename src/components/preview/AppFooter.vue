@@ -15,7 +15,9 @@
   background-color: var(--color-surface);
   color: color-mix(in oklch, var(--color-text) 70%, transparent);
   border-top: 1px solid color-mix(in oklch, var(--color-text) 12%, transparent);
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
   transition:
     background-color 0.2s ease,
     color 0.2s ease,

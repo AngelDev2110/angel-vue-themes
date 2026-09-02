@@ -27,8 +27,9 @@ const initials = computed(() =>
   border-radius: 999px;
   background-color: var(--color-primary);
   color: var(--color-on-primary);
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
