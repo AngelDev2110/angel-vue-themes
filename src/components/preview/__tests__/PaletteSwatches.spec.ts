@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import PaletteSwatches from '../PaletteSwatches.vue'
@@ -43,5 +43,21 @@ describe('PaletteSwatches', () => {
 
     expect(new Set(store.palette).size).toBeLessThan(store.palette.length)
     expect(wrapper.findAll('li')).toHaveLength(store.palette.length)
+  })
+
+  it('copies only the clicked color and marks that button as copied', async () => {
+    const execCommand = vi.fn<Document['execCommand']>().mockReturnValue(true)
+    document.execCommand = execCommand
+    const wrapper = mount(PaletteSwatches, { attachTo: document.body })
+    const store = usePaletteStore()
+
+    const copyButtons = wrapper.findAll('.specimen__copy')
+    await copyButtons[0]?.trigger('click')
+
+    expect(execCommand).toHaveBeenCalledWith('copy')
+    expect(copyButtons[0]?.attributes('aria-label')).toBe('Copied')
+    expect(copyButtons[1]?.attributes('aria-label')).toBe(`Copy ${store.palette[1]}`)
+
+    wrapper.unmount()
   })
 })

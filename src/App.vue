@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import ColorPicker from './components/controls/ColorPicker.vue'
 import ThemeModeToggle from './components/controls/ThemeModeToggle.vue'
+import ExportPanel from './components/export/ExportPanel.vue'
 import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
 import AppCard from './components/preview/AppCard.vue'
@@ -51,6 +52,8 @@ useThemeInjector()
           <PaletteSwatches />
         </div>
       </div>
+
+      <ExportPanel class="panel__export" />
     </section>
 
     <section class="stage">
@@ -171,6 +174,11 @@ useThemeInjector()
   display: flex;
   flex-wrap: wrap;
   gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.panel__export {
+  max-width: 34rem;
 }
 
 .panel__wheel {
