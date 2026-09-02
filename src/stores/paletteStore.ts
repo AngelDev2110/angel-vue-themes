@@ -15,7 +15,7 @@ export const usePaletteStore = defineStore('palette', () => {
   const baseColor = ref(DEFAULT_BASE_COLOR)
   const harmonyType = ref<HarmonyType>(DEFAULT_HARMONY_TYPE)
   const history = ref<string[]>([])
-  const colorMode = useColorMode()
+  const colorMode = useColorMode({ emitAuto: true })
 
   const palette = computed(() =>
     generateHarmony(harmonyType.value, hexToOklch(baseColor.value)).map(oklchToHex),

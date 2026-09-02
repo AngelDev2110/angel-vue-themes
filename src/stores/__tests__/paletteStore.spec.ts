@@ -85,4 +85,14 @@ describe('usePaletteStore', () => {
     expect(store.themeModePreference).toBe('dark')
     expect(store.neutralPalette.background).not.toBe(lightBackground)
   })
+
+  it('keeps the preference as "auto" while resolving to a concrete theme mode', () => {
+    const store = usePaletteStore()
+
+    store.setThemeMode('dark')
+    store.setThemeMode('auto')
+
+    expect(store.themeModePreference).toBe('auto')
+    expect(['light', 'dark']).toContain(store.resolvedThemeMode)
+  })
 })

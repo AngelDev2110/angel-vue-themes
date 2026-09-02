@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 defineProps<{
-  options: { value: string; label: string }[]
+  options: { value: string; label: string; icon?: Component }[]
   modelValue: string
 }>()
 
@@ -19,6 +21,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
       :class="{ 'app-segmented-control__option--active': option.value === modelValue }"
       @click="$emit('update:modelValue', option.value)"
     >
+      <component :is="option.icon" v-if="option.icon" class="app-segmented-control__icon" aria-hidden="true" />
       {{ option.label }}
     </button>
   </div>
@@ -35,6 +38,9 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
 }
 
 .app-segmented-control__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.35rem 0.7rem;
   border: none;
   border-radius: 0.35rem;
@@ -48,6 +54,12 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
   transition:
     background-color 0.15s ease,
     color 0.15s ease;
+}
+
+.app-segmented-control__icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
 }
 
 .app-segmented-control__option:hover {
