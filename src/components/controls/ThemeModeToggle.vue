@@ -4,6 +4,7 @@ import { onClickOutside } from '@vueuse/core'
 import { Sun, Moon, Monitor } from '@lucide/vue'
 import { usePaletteStore } from '../../stores/paletteStore'
 import AppSegmentedControl from './AppSegmentedControl.vue'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
 
@@ -24,9 +25,13 @@ onClickOutside(dropdownRef, () => {
   isMenuOpen.value = false
 })
 
+function closeMenu() {
+  isMenuOpen.value = false
+}
+
 function onThemeModeChange(value: string) {
   store.setThemeMode(value as 'light' | 'dark' | 'auto')
-  isMenuOpen.value = false
+  closeMenu()
 }
 </script>
 
@@ -43,20 +48,28 @@ function onThemeModeChange(value: string) {
     />
 
     <div ref="dropdownRef" class="theme-mode-toggle__dropdown">
-      <button
-        type="button"
+      <AppChipButton
+        variant="background"
         class="theme-mode-toggle__trigger"
         aria-haspopup="listbox"
         :aria-expanded="isMenuOpen"
+        :aria-controls="isMenuOpen ? 'theme-mode-menu' : undefined"
         aria-labelledby="theme-mode"
         @click="isMenuOpen = !isMenuOpen"
+        @keydown.esc="closeMenu"
       >
         <component :is="currentOption.icon" class="theme-mode-toggle__icon" aria-hidden="true" />
         {{ currentOption.label }}
         <span class="theme-mode-toggle__chevron" :class="{ 'theme-mode-toggle__chevron--open': isMenuOpen }" />
-      </button>
+      </AppChipButton>
 
-      <ul v-if="isMenuOpen" class="theme-mode-toggle__menu" role="listbox" aria-labelledby="theme-mode">
+      <ul
+        v-if="isMenuOpen"
+        id="theme-mode-menu"
+        class="theme-mode-toggle__menu"
+        role="listbox"
+        aria-labelledby="theme-mode"
+      >
         <li
           v-for="option in THEME_MODE_OPTIONS"
           :key="option.value"
@@ -93,22 +106,6 @@ function onThemeModeChange(value: string) {
 .theme-mode-toggle__dropdown {
   display: none;
   position: relative;
-}
-
-.theme-mode-toggle__trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
 }
 
 .theme-mode-toggle__icon {

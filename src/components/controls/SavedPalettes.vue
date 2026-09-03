@@ -1,12 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import { BookmarkPlus, Trash2 } from '@lucide/vue'
 import { usePaletteStore } from '../../stores/paletteStore'
 import { hexToOklch, oklchToHex } from '../../composables/useColorMath'
 import { generateHarmony } from '../../composables/useHarmonyGenerator'
 import { applyAdjustment, NO_ADJUSTMENT } from '../../composables/useColorFineTuning'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
+const pendingDeleteId = ref<string | null>(null)
+const listRef = ref<HTMLElement | null>(null)
+
+onClickOutside(listRef, () => {
+  pendingDeleteId.value = null
+})
 
 const SAVED_AT_FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
   month: 'short',
@@ -32,11 +40,18 @@ function onSave() {
 }
 
 function onLoad(id: string) {
+  pendingDeleteId.value = null
   store.loadSavedPalette(id)
 }
 
-function onDelete(id: string) {
+function onDeleteClick(id: string) {
+  if (pendingDeleteId.value !== id) {
+    pendingDeleteId.value = id
+    return
+  }
+
   store.deleteSavedPalette(id)
+  pendingDeleteId.value = null
 }
 </script>
 
@@ -44,10 +59,10 @@ function onDelete(id: string) {
   <div class="saved-palettes">
     <div class="saved-palettes__header">
       <span class="saved-palettes__label">Saved palettes</span>
-      <button type="button" class="saved-palettes__save" @click="onSave">
+      <AppChipButton class="saved-palettes__save" @click="onSave">
         <BookmarkPlus class="saved-palettes__save-icon" aria-hidden="true" />
         Save current
-      </button>
+      </AppChipButton>
     </div>
 
     <p v-if="savedPalettePreviews.length === 0" class="saved-palettes__empty">
@@ -55,7 +70,7 @@ function onDelete(id: string) {
       can come back to.
     </p>
 
-    <ul v-else class="saved-palettes__list">
+    <ul v-else ref="listRef" class="saved-palettes__list">
       <li v-for="saved in savedPalettePreviews" :key="saved.id" class="saved-palette">
         <button
           type="button"
@@ -80,10 +95,16 @@ function onDelete(id: string) {
         <button
           type="button"
           class="saved-palette__delete"
-          :aria-label="`Delete palette saved ${saved.savedAtLabel}`"
-          @click="onDelete(saved.id)"
+          :class="{ 'saved-palette__delete--confirm': pendingDeleteId === saved.id }"
+          :aria-label="
+            pendingDeleteId === saved.id
+              ? `Click again to permanently delete the palette saved ${saved.savedAtLabel}`
+              : `Delete palette saved ${saved.savedAtLabel}`
+          "
+          @click="onDeleteClick(saved.id)"
         >
-          <Trash2 class="saved-palette__delete-icon" aria-hidden="true" />
+          <Trash2 v-if="pendingDeleteId !== saved.id" class="saved-palette__delete-icon" aria-hidden="true" />
+          <span v-else class="saved-palette__delete-confirm">Sure?</span>
         </button>
       </li>
     </ul>
@@ -111,29 +132,6 @@ function onDelete(id: string) {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in oklch, var(--color-text) 60%, transparent);
-}
-
-.saved-palettes__save {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.35rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.saved-palettes__save:hover {
-  background-color: color-mix(in oklch, var(--color-text) 8%, var(--color-surface));
 }
 
 .saved-palettes__save-icon {
@@ -243,5 +241,25 @@ function onDelete(id: string) {
   width: 0.85rem;
   height: 0.85rem;
   flex-shrink: 0;
+}
+
+.saved-palette__delete--confirm {
+  padding: 0.3rem 0.5rem;
+  background-color: color-mix(in oklch, var(--color-error) 15%, transparent);
+  color: var(--color-error);
+}
+
+.saved-palette__delete--confirm:hover {
+  background-color: color-mix(in oklch, var(--color-error) 25%, transparent);
+  color: var(--color-error);
+}
+
+.saved-palette__delete-confirm {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 </style>

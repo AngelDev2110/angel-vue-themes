@@ -215,6 +215,18 @@ describe('usePaletteStore', () => {
     expect(store.savedPalettes).toHaveLength(2)
   })
 
+  it('does not duplicate a palette that already exists earlier in the list, not just the most recent one', () => {
+    const store = usePaletteStore()
+
+    store.saveCurrentPalette()
+    store.setBaseColor('#cc3366')
+    store.saveCurrentPalette()
+    store.setBaseColor('#3366cc')
+    store.saveCurrentPalette()
+
+    expect(store.savedPalettes).toHaveLength(2)
+  })
+
   it('restores the base color, harmony, and status hue mode from a saved palette', () => {
     const store = usePaletteStore()
     store.setBaseColor('#cc3366')

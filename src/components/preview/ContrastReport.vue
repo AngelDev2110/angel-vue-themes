@@ -3,18 +3,27 @@ import { computed, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { usePaletteStore } from '../../stores/paletteStore'
 import { hexToRgb, getContrastRatio, getWcagLevel } from '../../composables/useColorMath'
+import AppChipButton from '../controls/AppChipButton.vue'
 
 const store = usePaletteStore()
 const openCheckLabel = ref<string | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 
+const POPOVER_ID_UNSAFE_CHARACTERS = /[^a-z0-9]+/g
+
+function toPopoverId(label: string): string {
+  return `contrast-popover-${label.toLowerCase().replace(POPOVER_ID_UNSAFE_CHARACTERS, '-')}`
+}
+
 function toggleCheck(label: string) {
   openCheckLabel.value = openCheckLabel.value === label ? null : label
 }
 
-onClickOutside(listRef, () => {
+function closePopover() {
   openCheckLabel.value = null
-})
+}
+
+onClickOutside(listRef, closePopover)
 
 interface ContrastCheck {
   label: string
@@ -68,11 +77,12 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
   <div class="contrast-report">
     <ul ref="listRef" class="contrast-report__list">
       <li v-for="check in checks" :key="check.label" class="contrast-check">
-        <button
-          type="button"
+        <AppChipButton
           class="contrast-check__trigger"
           :aria-expanded="openCheckLabel === check.label"
+          :aria-controls="openCheckLabel === check.label ? toPopoverId(check.label) : undefined"
           @click="toggleCheck(check.label)"
+          @keydown.esc="closePopover"
         >
           <span class="contrast-check__label">{{ check.label }}</span>
           <span class="contrast-check__ratio">{{ check.ratio.toFixed(1) }}:1</span>
@@ -82,9 +92,13 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
           >
             {{ check.level }}
           </span>
-        </button>
+        </AppChipButton>
 
-        <div v-if="openCheckLabel === check.label" class="contrast-check__popover">
+        <div
+          v-if="openCheckLabel === check.label"
+          :id="toPopoverId(check.label)"
+          class="contrast-check__popover"
+        >
           <div class="contrast-check__color-row">
             <span class="contrast-check__swatch" :style="{ backgroundColor: check.foreground }" />
             <span class="contrast-check__color-role">Text</span>
@@ -156,20 +170,6 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
   position: relative;
 }
 
-.contrast-check__trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.35rem 0.6rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  border-radius: 0.5rem;
-  background-color: var(--color-surface);
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.contrast-check__trigger:hover,
 .contrast-check__trigger[aria-expanded='true'] {
   border-color: color-mix(in oklch, var(--color-text) 35%, transparent);
 }

@@ -20,20 +20,35 @@ export function removeCssVariables(target: HTMLElement, names: string[]): void {
 export function useThemeInjector(target: HTMLElement = document.documentElement) {
   const store = usePaletteStore()
   let appliedVariableNames: string[] = []
+  let pendingFrame: number | null = null
+
+  function applyThemeVariables(themeVariables: Record<string, string>) {
+    const variables = buildPaletteVariables(themeVariables)
+    const nextVariableNames = Object.keys(variables)
+    const staleVariableNames = appliedVariableNames.filter(
+      (name) => !nextVariableNames.includes(name),
+    )
+
+    removeCssVariables(target, staleVariableNames)
+    applyCssVariables(target, variables)
+
+    appliedVariableNames = nextVariableNames
+  }
 
   watch(
     () => store.themeVariables,
-    (themeVariables) => {
-      const variables = buildPaletteVariables(themeVariables)
-      const nextVariableNames = Object.keys(variables)
-      const staleVariableNames = appliedVariableNames.filter(
-        (name) => !nextVariableNames.includes(name),
-      )
+    (themeVariables, previousThemeVariables) => {
+      if (previousThemeVariables === undefined) {
+        applyThemeVariables(themeVariables)
+        return
+      }
 
-      removeCssVariables(target, staleVariableNames)
-      applyCssVariables(target, variables)
+      if (pendingFrame !== null) cancelAnimationFrame(pendingFrame)
 
-      appliedVariableNames = nextVariableNames
+      pendingFrame = requestAnimationFrame(() => {
+        pendingFrame = null
+        applyThemeVariables(themeVariables)
+      })
     },
     { immediate: true },
   )

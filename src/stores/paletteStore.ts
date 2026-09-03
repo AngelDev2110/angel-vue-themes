@@ -142,8 +142,7 @@ export const usePaletteStore = defineStore('palette', () => {
   }
 
   function saveCurrentPalette() {
-    const mostRecent = savedPalettes.value[0]
-    if (mostRecent && isSameAsCurrentPalette(mostRecent)) return
+    if (savedPalettes.value.some(isSameAsCurrentPalette)) return
 
     const entry: SavedPalette = {
       id: crypto.randomUUID(),

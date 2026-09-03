@@ -66,6 +66,33 @@ describe('ThemeModeToggle', () => {
     wrapper.unmount()
   })
 
+  it('closes the dropdown menu when Escape is pressed', async () => {
+    const wrapper = mount(ThemeModeToggle, { attachTo: document.body })
+    const trigger = wrapper.find('.theme-mode-toggle__trigger')
+
+    await trigger.trigger('click')
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(true)
+
+    await trigger.trigger('keydown.esc')
+    expect(wrapper.find('[role="listbox"]').exists()).toBe(false)
+
+    wrapper.unmount()
+  })
+
+  it('links the trigger to the open menu via aria-controls', async () => {
+    const wrapper = mount(ThemeModeToggle, { attachTo: document.body })
+    const trigger = wrapper.find('.theme-mode-toggle__trigger')
+
+    expect(trigger.attributes('aria-controls')).toBeUndefined()
+
+    await trigger.trigger('click')
+
+    const menu = wrapper.find('[role="listbox"]')
+    expect(trigger.attributes('aria-controls')).toBe(menu.attributes('id'))
+
+    wrapper.unmount()
+  })
+
   it('closes the dropdown menu when clicking outside', async () => {
     const outside = document.createElement('div')
     document.body.appendChild(outside)

@@ -131,4 +131,28 @@ describe('ContrastReport', () => {
     expect(primaryCheck.find('.contrast-check__popover').exists()).toBe(false)
     expect(secondaryCheck.find('.contrast-check__popover').exists()).toBe(true)
   })
+
+  it('closes the popover when Escape is pressed', async () => {
+    const wrapper = mount(ContrastReport)
+    const trigger = findCheck(wrapper, 'Primary').find('.contrast-check__trigger')
+
+    await trigger.trigger('click')
+    expect(wrapper.find('.contrast-check__popover').exists()).toBe(true)
+
+    await trigger.trigger('keydown.esc')
+    expect(wrapper.find('.contrast-check__popover').exists()).toBe(false)
+  })
+
+  it('links the trigger to the open popover via aria-controls', async () => {
+    const wrapper = mount(ContrastReport)
+    const primaryCheck = findCheck(wrapper, 'Primary')
+    const trigger = primaryCheck.find('.contrast-check__trigger')
+
+    expect(trigger.attributes('aria-controls')).toBeUndefined()
+
+    await trigger.trigger('click')
+
+    const popover = primaryCheck.find('.contrast-check__popover')
+    expect(trigger.attributes('aria-controls')).toBe(popover.attributes('id'))
+  })
 })
