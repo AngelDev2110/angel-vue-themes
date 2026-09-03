@@ -20,19 +20,19 @@ OKLCH is perceptually uniform: the same numeric change produces the same visual 
 
 ## Stack
 
-Vue 3 (`<script setup>`) · TypeScript · Vite · Pinia · Vitest · ESLint + Prettier
+Vue 3 (`<script setup>`) · TypeScript · Vite · Pinia · Vitest · ESLint + Prettier · Bun
 
 ## Getting started
 
 ```sh
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ```sh
-npm run test:unit   # unit tests
-npm run type-check  # vue-tsc
-npm run lint        # oxlint + eslint
+bun run test:unit   # unit tests
+bun run type-check  # vue-tsc
+bun run lint        # oxlint + eslint
 ```
 
 ## Roadmap
