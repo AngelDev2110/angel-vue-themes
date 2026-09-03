@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { usePaletteStore } from '../../stores/paletteStore'
+import { usePaletteStore, type StatusHueMode } from '../../stores/paletteStore'
 import { HARMONY_TYPES, type HarmonyType } from '../../composables/useHarmonyGenerator'
 import { hexToOklch } from '../../composables/useColorMath'
 import AppSegmentedControl from './AppSegmentedControl.vue'
+
+const STATUS_HUE_MODE_OPTIONS: { value: StatusHueMode; label: string }[] = [
+  { value: 'fixed', label: 'fixed' },
+  { value: 'dynamic', label: 'dynamic' },
+]
 
 const store = usePaletteStore()
 
@@ -16,6 +21,10 @@ function onBaseColorChange(event: Event) {
 
 function onHarmonyTypeChange(value: string) {
   store.setHarmonyType(value as HarmonyType)
+}
+
+function onStatusHueModeChange(value: string) {
+  store.setStatusHueMode(value as StatusHueMode)
 }
 </script>
 
@@ -46,6 +55,16 @@ function onHarmonyTypeChange(value: string) {
         :model-value="store.harmonyType"
         aria-labelledby="harmony-type"
         @update:model-value="onHarmonyTypeChange"
+      />
+    </div>
+
+    <div class="color-picker__field">
+      <label id="status-hue-mode" class="color-picker__label">Status hues</label>
+      <AppSegmentedControl
+        :options="STATUS_HUE_MODE_OPTIONS"
+        :model-value="store.statusHueMode"
+        aria-labelledby="status-hue-mode"
+        @update:model-value="onStatusHueModeChange"
       />
     </div>
   </div>

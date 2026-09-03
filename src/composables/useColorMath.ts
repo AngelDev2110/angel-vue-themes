@@ -181,3 +181,32 @@ export function getContrastRatio(a: RGB, b: RGB): number {
 
   return (lighter + WCAG_CONTRAST_OFFSET) / (darker + WCAG_CONTRAST_OFFSET)
 }
+
+const DISPLAYABLE_CHANNEL_RANGE = { min: 0, max: 255 }
+const GAMUT_CHROMA_SEARCH_ITERATIONS = 16
+const IN_GAMUT_CHROMA = 0
+
+function isRgbInGamut({ r, g, b }: RGB): boolean {
+  return [r, g, b].every(
+    (channel) => channel >= DISPLAYABLE_CHANNEL_RANGE.min && channel <= DISPLAYABLE_CHANNEL_RANGE.max,
+  )
+}
+
+export function clampChromaToGamut(oklch: Oklch): Oklch {
+  if (isRgbInGamut(oklchToRgb(oklch))) return oklch
+
+  let maxInGamutChroma = IN_GAMUT_CHROMA
+  let minOutOfGamutChroma = oklch.c
+
+  for (let i = 0; i < GAMUT_CHROMA_SEARCH_ITERATIONS; i++) {
+    const candidateChroma = (maxInGamutChroma + minOutOfGamutChroma) / 2
+
+    if (isRgbInGamut(oklchToRgb({ ...oklch, c: candidateChroma }))) {
+      maxInGamutChroma = candidateChroma
+    } else {
+      minOutOfGamutChroma = candidateChroma
+    }
+  }
+
+  return { ...oklch, c: maxInGamutChroma }
+}

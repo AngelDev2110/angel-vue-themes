@@ -5,15 +5,21 @@ import { hexToOklch, oklchToHex } from '../composables/useColorMath'
 import { generateHarmony, type HarmonyType } from '../composables/useHarmonyGenerator'
 import { mapPaletteToRoles } from '../composables/useSemanticPalette'
 import { generateNeutralRoles, type ThemeMode } from '../composables/useNeutralPalette'
+import { generateStatusRoles } from '../composables/useStatusPalette'
 import { generateOnColorRoles } from '../composables/useOnColorRoles'
+
+export type StatusHueMode = 'fixed' | 'dynamic'
 
 const DEFAULT_BASE_COLOR = '#3366cc'
 const DEFAULT_HARMONY_TYPE: HarmonyType = 'complementary'
+const DEFAULT_STATUS_HUE_MODE: StatusHueMode = 'fixed'
 const MAX_HISTORY_LENGTH = 10
+const STATUS_HUE_REFERENCE = hexToOklch(DEFAULT_BASE_COLOR).h
 
 export const usePaletteStore = defineStore('palette', () => {
   const baseColor = ref(DEFAULT_BASE_COLOR)
   const harmonyType = ref<HarmonyType>(DEFAULT_HARMONY_TYPE)
+  const statusHueMode = ref<StatusHueMode>(DEFAULT_STATUS_HUE_MODE)
   const history = ref<string[]>([])
   const colorMode = useColorMode({ emitAuto: true })
 
@@ -22,10 +28,21 @@ export const usePaletteStore = defineStore('palette', () => {
   )
 
   const semanticPalette = computed(() => mapPaletteToRoles(harmonyType.value, palette.value))
-  const onColorPalette = computed(() => generateOnColorRoles(semanticPalette.value))
 
   const themeModePreference = computed(() => colorMode.value)
   const resolvedThemeMode = computed(() => colorMode.state.value)
+
+  const statusHueShift = computed(() =>
+    statusHueMode.value === 'dynamic' ? hexToOklch(baseColor.value).h - STATUS_HUE_REFERENCE : 0,
+  )
+
+  const statusPalette = computed(() =>
+    generateStatusRoles(resolvedThemeMode.value, statusHueShift.value),
+  )
+
+  const onColorPalette = computed(() =>
+    generateOnColorRoles({ ...semanticPalette.value, ...statusPalette.value }),
+  )
 
   const neutralPalette = computed(() =>
     generateNeutralRoles(hexToOklch(baseColor.value), resolvedThemeMode.value),
@@ -33,6 +50,7 @@ export const usePaletteStore = defineStore('palette', () => {
 
   const themeVariables = computed(() => ({
     ...semanticPalette.value,
+    ...statusPalette.value,
     ...onColorPalette.value,
     ...neutralPalette.value,
   }))
@@ -54,6 +72,10 @@ export const usePaletteStore = defineStore('palette', () => {
     harmonyType.value = type
   }
 
+  function setStatusHueMode(mode: StatusHueMode) {
+    statusHueMode.value = mode
+  }
+
   function setThemeMode(mode: ThemeMode | 'auto') {
     colorMode.value = mode
   }
@@ -61,9 +83,11 @@ export const usePaletteStore = defineStore('palette', () => {
   return {
     baseColor,
     harmonyType,
+    statusHueMode,
     history,
     palette,
     semanticPalette,
+    statusPalette,
     onColorPalette,
     neutralPalette,
     themeVariables,
@@ -71,6 +95,7 @@ export const usePaletteStore = defineStore('palette', () => {
     resolvedThemeMode,
     setBaseColor,
     setHarmonyType,
+    setStatusHueMode,
     setThemeMode,
   }
 })

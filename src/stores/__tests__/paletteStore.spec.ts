@@ -62,28 +62,48 @@ describe('usePaletteStore', () => {
     ])
   })
 
-  it('defaults to light mode and merges brand, on-color, and neutral roles into themeVariables', () => {
+  it('derives the four status roles independently of the harmony type', () => {
+    const store = usePaletteStore()
+
+    expect(Object.keys(store.statusPalette)).toEqual(['success', 'warning', 'error', 'info'])
+
+    store.setHarmonyType('monochromatic')
+
+    expect(Object.keys(store.statusPalette)).toEqual(['success', 'warning', 'error', 'info'])
+  })
+
+  it('defaults to light mode and merges brand, status, on-color, and neutral roles into themeVariables', () => {
     const store = usePaletteStore()
 
     expect(store.resolvedThemeMode).toBe('light')
     expect(Object.keys(store.neutralPalette)).toEqual(['background', 'surface', 'text'])
-    expect(Object.keys(store.onColorPalette)).toEqual(['on-primary', 'on-secondary'])
+    expect(Object.keys(store.onColorPalette)).toEqual([
+      'on-primary',
+      'on-secondary',
+      'on-success',
+      'on-warning',
+      'on-error',
+      'on-info',
+    ])
     expect(store.themeVariables).toEqual({
       ...store.semanticPalette,
+      ...store.statusPalette,
       ...store.onColorPalette,
       ...store.neutralPalette,
     })
   })
 
-  it('re-derives neutrals when the theme mode changes', () => {
+  it('re-derives neutrals and status roles when the theme mode changes', () => {
     const store = usePaletteStore()
     const lightBackground = store.neutralPalette.background
+    const lightSuccess = store.statusPalette.success
 
     store.setThemeMode('dark')
 
     expect(store.resolvedThemeMode).toBe('dark')
     expect(store.themeModePreference).toBe('dark')
     expect(store.neutralPalette.background).not.toBe(lightBackground)
+    expect(store.statusPalette.success).not.toBe(lightSuccess)
   })
 
   it('keeps the preference as "auto" while resolving to a concrete theme mode', () => {
@@ -94,5 +114,36 @@ describe('usePaletteStore', () => {
 
     expect(store.themeModePreference).toBe('auto')
     expect(['light', 'dark']).toContain(store.resolvedThemeMode)
+  })
+
+  it('defaults to fixed status hues, ignoring the base color', () => {
+    const store = usePaletteStore()
+    const initialStatusPalette = store.statusPalette
+
+    expect(store.statusHueMode).toBe('fixed')
+
+    store.setBaseColor('#cc3366')
+
+    expect(store.statusPalette).toEqual(initialStatusPalette)
+  })
+
+  it('shifts status hues with the base color once dynamic mode is enabled', () => {
+    const store = usePaletteStore()
+    const fixedStatusPalette = store.statusPalette
+
+    store.setStatusHueMode('dynamic')
+    store.setBaseColor('#cc3366')
+
+    expect(store.statusHueMode).toBe('dynamic')
+    expect(store.statusPalette).not.toEqual(fixedStatusPalette)
+  })
+
+  it('matches fixed mode in dynamic mode when the base color is untouched', () => {
+    const store = usePaletteStore()
+    const fixedStatusPalette = store.statusPalette
+
+    store.setStatusHueMode('dynamic')
+
+    expect(store.statusPalette).toEqual(fixedStatusPalette)
   })
 })

@@ -8,7 +8,12 @@ import {
   oklchToHex,
   getRelativeLuminance,
   getContrastRatio,
+  clampChromaToGamut,
 } from '../useColorMath'
+
+function isInDisplayableGamut(rgb: { r: number; g: number; b: number }): boolean {
+  return [rgb.r, rgb.g, rgb.b].every((channel) => channel >= 0 && channel <= 255)
+}
 
 describe('hexToRgb / rgbToHex', () => {
   it('parses a 6-digit hex', () => {
@@ -65,5 +70,32 @@ describe('contrast', () => {
 
   it('white has the maximum relative luminance', () => {
     expect(getRelativeLuminance({ r: 255, g: 255, b: 255 })).toBeCloseTo(1, 5)
+  })
+})
+
+describe('clampChromaToGamut', () => {
+  it('leaves an already-displayable color untouched', () => {
+    const oklch = { l: 0.6, c: 0.1, h: 25 }
+
+    expect(clampChromaToGamut(oklch)).toEqual(oklch)
+  })
+
+  it('reduces the chroma of an out-of-gamut color until it becomes displayable', () => {
+    const outOfGamut = { l: 0.6, c: 0.35, h: 199 }
+
+    expect(isInDisplayableGamut(oklchToRgb(outOfGamut))).toBe(false)
+
+    const clamped = clampChromaToGamut(outOfGamut)
+
+    expect(clamped.c).toBeLessThan(outOfGamut.c)
+    expect(isInDisplayableGamut(oklchToRgb(clamped))).toBe(true)
+  })
+
+  it('preserves lightness and hue while only adjusting chroma', () => {
+    const outOfGamut = { l: 0.6, c: 0.35, h: 199 }
+    const clamped = clampChromaToGamut(outOfGamut)
+
+    expect(clamped.l).toBe(outOfGamut.l)
+    expect(clamped.h).toBe(outOfGamut.h)
   })
 })
