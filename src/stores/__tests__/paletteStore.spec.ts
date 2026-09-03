@@ -4,6 +4,7 @@ import { usePaletteStore } from '../paletteStore'
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  localStorage.clear()
 })
 
 describe('usePaletteStore', () => {
@@ -166,5 +167,97 @@ describe('usePaletteStore', () => {
 
     expect(store.lightThemeVariables.primary).toBe(store.darkThemeVariables.primary)
     expect(store.lightThemeVariables.secondary).toBe(store.darkThemeVariables.secondary)
+  })
+
+  it('starts with no saved palettes', () => {
+    const store = usePaletteStore()
+
+    expect(store.savedPalettes).toEqual([])
+  })
+
+  it('saves the current base color, harmony, and status hue mode', () => {
+    const store = usePaletteStore()
+    store.setBaseColor('#cc3366')
+    store.setHarmonyType('triadic')
+    store.setStatusHueMode('dynamic')
+
+    store.saveCurrentPalette()
+
+    expect(store.savedPalettes).toHaveLength(1)
+    expect(store.savedPalettes[0]).toMatchObject({
+      baseColor: '#cc3366',
+      harmonyType: 'triadic',
+      statusHueMode: 'dynamic',
+    })
+    expect(store.savedPalettes[0].id).toBeTruthy()
+    expect(store.savedPalettes[0].savedAt).toBeTruthy()
+  })
+
+  it('does nothing when saving the same palette twice in a row', () => {
+    const store = usePaletteStore()
+
+    store.saveCurrentPalette()
+    store.saveCurrentPalette()
+
+    expect(store.savedPalettes).toHaveLength(1)
+  })
+
+  it('saves a new entry when the palette changes after a previous save', () => {
+    const store = usePaletteStore()
+
+    store.saveCurrentPalette()
+    store.setBaseColor('#cc3366')
+    store.saveCurrentPalette()
+
+    expect(store.savedPalettes).toHaveLength(2)
+  })
+
+  it('restores the base color, harmony, and status hue mode from a saved palette', () => {
+    const store = usePaletteStore()
+    store.setBaseColor('#cc3366')
+    store.setHarmonyType('triadic')
+    store.setStatusHueMode('dynamic')
+    store.saveCurrentPalette()
+    const savedId = store.savedPalettes[0].id
+
+    store.setBaseColor('#3366cc')
+    store.setHarmonyType('complementary')
+    store.setStatusHueMode('fixed')
+
+    store.loadSavedPalette(savedId)
+
+    expect(store.baseColor).toBe('#cc3366')
+    expect(store.harmonyType).toBe('triadic')
+    expect(store.statusHueMode).toBe('dynamic')
+  })
+
+  it('does nothing when loading an unknown id', () => {
+    const store = usePaletteStore()
+    const originalBaseColor = store.baseColor
+
+    store.loadSavedPalette('does-not-exist')
+
+    expect(store.baseColor).toBe(originalBaseColor)
+  })
+
+  it('removes a saved palette by id', () => {
+    const store = usePaletteStore()
+    store.saveCurrentPalette()
+    const savedId = store.savedPalettes[0].id
+
+    store.deleteSavedPalette(savedId)
+
+    expect(store.savedPalettes).toEqual([])
+  })
+
+  it('caps saved palettes at the maximum length', () => {
+    const store = usePaletteStore()
+
+    for (let i = 0; i < 25; i++) {
+      store.setBaseColor(`#${i.toString(16).padStart(6, '0')}`)
+      store.saveCurrentPalette()
+    }
+
+    expect(store.savedPalettes).toHaveLength(20)
   })
 })
