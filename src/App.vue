@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import ColorPicker from './components/controls/ColorPicker.vue'
 import ThemeModeToggle from './components/controls/ThemeModeToggle.vue'
 import SavedPalettes from './components/controls/SavedPalettes.vue'
+import PaletteFineTuner from './components/controls/PaletteFineTuner.vue'
 import ExportPanel from './components/export/ExportPanel.vue'
 import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
@@ -59,6 +60,25 @@ useThemeInjector()
             <p class="panel__section-label">Generated palette</p>
             <PaletteSwatches />
           </div>
+        </div>
+
+        <div class="panel__fine-tune">
+          <div class="panel__fine-tune-header">
+            <p class="panel__section-label">Fine-tune</p>
+            <button
+              v-if="Object.keys(store.fineTuneAdjustments).length > 0"
+              type="button"
+              class="panel__fine-tune-reset"
+              @click="store.resetAllFineTuneAdjustments"
+            >
+              Reset all
+            </button>
+          </div>
+          <p class="panel__caption">
+            Nudge lightness, chroma, or hue per generated color. Adjustments are gamut-safe and
+            stick to their position even if you change the base color or harmony.
+          </p>
+          <PaletteFineTuner />
         </div>
 
         <div class="panel__contrast">
@@ -210,6 +230,41 @@ useThemeInjector()
   flex-wrap: wrap;
   gap: 2.5rem;
   margin-bottom: 2.5rem;
+}
+
+.panel__fine-tune {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.panel__fine-tune-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panel__fine-tune-reset {
+  padding: 0.2rem 0.6rem;
+  border: 1px solid color-mix(in oklch, var(--color-text) 20%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: color-mix(in oklch, var(--color-text) 70%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.panel__fine-tune-reset:hover {
+  background-color: color-mix(in oklch, var(--color-text) 10%, transparent);
+  color: var(--color-text);
 }
 
 .panel__contrast {

@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { onClickOutside } from '@vueuse/core'
 import { usePaletteStore } from '../../stores/paletteStore'
 import { hexToRgb, getContrastRatio, getWcagLevel } from '../../composables/useColorMath'
 
 const store = usePaletteStore()
+const openCheckLabel = ref<string | null>(null)
+const listRef = ref<HTMLElement | null>(null)
+
+function toggleCheck(label: string) {
+  openCheckLabel.value = openCheckLabel.value === label ? null : label
+}
+
+onClickOutside(listRef, () => {
+  openCheckLabel.value = null
+})
 
 interface ContrastCheck {
   label: string
@@ -55,16 +66,36 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
 
 <template>
   <div class="contrast-report">
-    <ul class="contrast-report__list">
+    <ul ref="listRef" class="contrast-report__list">
       <li v-for="check in checks" :key="check.label" class="contrast-check">
-        <span class="contrast-check__label">{{ check.label }}</span>
-        <span class="contrast-check__ratio">{{ check.ratio.toFixed(1) }}:1</span>
-        <span
-          class="contrast-check__level"
-          :class="`contrast-check__level--${check.level === 'Fail' ? 'fail' : 'pass'}`"
+        <button
+          type="button"
+          class="contrast-check__trigger"
+          :aria-expanded="openCheckLabel === check.label"
+          @click="toggleCheck(check.label)"
         >
-          {{ check.level }}
-        </span>
+          <span class="contrast-check__label">{{ check.label }}</span>
+          <span class="contrast-check__ratio">{{ check.ratio.toFixed(1) }}:1</span>
+          <span
+            class="contrast-check__level"
+            :class="`contrast-check__level--${check.level === 'Fail' ? 'fail' : 'pass'}`"
+          >
+            {{ check.level }}
+          </span>
+        </button>
+
+        <div v-if="openCheckLabel === check.label" class="contrast-check__popover">
+          <div class="contrast-check__color-row">
+            <span class="contrast-check__swatch" :style="{ backgroundColor: check.foreground }" />
+            <span class="contrast-check__color-role">Text</span>
+            <span class="contrast-check__color-hex">{{ check.foreground }}</span>
+          </div>
+          <div class="contrast-check__color-row">
+            <span class="contrast-check__swatch" :style="{ backgroundColor: check.background }" />
+            <span class="contrast-check__color-role">Background</span>
+            <span class="contrast-check__color-hex">{{ check.background }}</span>
+          </div>
+        </div>
       </li>
     </ul>
 
@@ -122,6 +153,10 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
 }
 
 .contrast-check {
+  position: relative;
+}
+
+.contrast-check__trigger {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -129,6 +164,14 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
   border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
   border-radius: 0.5rem;
   background-color: var(--color-surface);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.contrast-check__trigger:hover,
+.contrast-check__trigger[aria-expanded='true'] {
+  border-color: color-mix(in oklch, var(--color-text) 35%, transparent);
 }
 
 .contrast-check__label {
@@ -161,6 +204,50 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
 .contrast-check__level--fail {
   background-color: color-mix(in oklch, var(--color-error) 20%, transparent);
   color: var(--color-error);
+}
+
+.contrast-check__popover {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 11rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
+  background-color: var(--color-background);
+  box-shadow: 0 0.5rem 1.25rem color-mix(in oklch, var(--color-text) 18%, transparent);
+}
+
+.contrast-check__color-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.1rem 0.5rem;
+}
+
+.contrast-check__swatch {
+  grid-row: span 2;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid color-mix(in oklch, var(--color-text) 20%, transparent);
+}
+
+.contrast-check__color-role {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: color-mix(in oklch, var(--color-text) 55%, transparent);
+}
+
+.contrast-check__color-hex {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text);
 }
 
 .contrast-methodology {
