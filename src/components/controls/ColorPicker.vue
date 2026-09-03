@@ -4,6 +4,7 @@ import { usePaletteStore, type StatusHueMode } from '../../stores/paletteStore'
 import { HARMONY_TYPES, type HarmonyType } from '../../composables/useHarmonyGenerator'
 import { hexToOklch } from '../../composables/useColorMath'
 import AppSegmentedControl from './AppSegmentedControl.vue'
+import ImageColorExtractor from './ImageColorExtractor.vue'
 
 const STATUS_HUE_MODE_OPTIONS: { value: StatusHueMode; label: string }[] = [
   { value: 'fixed', label: 'fixed' },
@@ -45,6 +46,8 @@ function onStatusHueModeChange(value: string) {
             Math.round(oklch.h)
           }}&deg;
         </span>
+
+        <ImageColorExtractor />
       </div>
     </div>
 
@@ -95,6 +98,7 @@ function onStatusHueModeChange(value: string) {
 
 .color-picker__readout-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
 }
