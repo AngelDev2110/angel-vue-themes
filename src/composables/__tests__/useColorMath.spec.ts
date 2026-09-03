@@ -8,6 +8,7 @@ import {
   oklchToHex,
   getRelativeLuminance,
   getContrastRatio,
+  getWcagLevel,
   clampChromaToGamut,
 } from '../useColorMath'
 
@@ -70,6 +71,28 @@ describe('contrast', () => {
 
   it('white has the maximum relative luminance', () => {
     expect(getRelativeLuminance({ r: 255, g: 255, b: 255 })).toBeCloseTo(1, 5)
+  })
+
+  it('matches the widely-published reference ratio for #767676 on white (~4.54:1)', () => {
+    const ratio = getContrastRatio({ r: 0x76, g: 0x76, b: 0x76 }, { r: 255, g: 255, b: 255 })
+
+    expect(ratio).toBeCloseTo(4.54, 2)
+  })
+})
+
+describe('getWcagLevel', () => {
+  it('grades a ratio below the AA threshold as a fail', () => {
+    expect(getWcagLevel(4.49)).toBe('Fail')
+  })
+
+  it('grades a ratio at or above the AA threshold, but below AAA, as AA', () => {
+    expect(getWcagLevel(4.5)).toBe('AA')
+    expect(getWcagLevel(6.99)).toBe('AA')
+  })
+
+  it('grades a ratio at or above the AAA threshold as AAA', () => {
+    expect(getWcagLevel(7)).toBe('AAA')
+    expect(getWcagLevel(21)).toBe('AAA')
   })
 })
 
