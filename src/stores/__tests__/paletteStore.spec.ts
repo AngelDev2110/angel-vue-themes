@@ -146,4 +146,25 @@ describe('usePaletteStore', () => {
 
     expect(store.statusPalette).toEqual(fixedStatusPalette)
   })
+
+  it('exposes light and dark theme variables independently of the current theme mode', () => {
+    const store = usePaletteStore()
+
+    expect(store.resolvedThemeMode).toBe('light')
+    expect(store.lightThemeVariables).toEqual(store.themeVariables)
+    expect(store.darkThemeVariables).not.toEqual(store.themeVariables)
+
+    store.setThemeMode('dark')
+
+    expect(store.resolvedThemeMode).toBe('dark')
+    expect(store.darkThemeVariables).toEqual(store.themeVariables)
+    expect(store.lightThemeVariables).not.toEqual(store.themeVariables)
+  })
+
+  it('keeps mode-invariant brand roles identical between light and dark theme variables', () => {
+    const store = usePaletteStore()
+
+    expect(store.lightThemeVariables.primary).toBe(store.darkThemeVariables.primary)
+    expect(store.lightThemeVariables.secondary).toBe(store.darkThemeVariables.secondary)
+  })
 })

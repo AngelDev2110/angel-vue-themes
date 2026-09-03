@@ -6,13 +6,18 @@ import { usePaletteStore } from '../../stores/paletteStore'
 import { downloadTextFile } from '../../helpers/downloadTextFile'
 import {
   toCssVariables,
+  toCssVariablesForBothModes,
   toJsonTheme,
+  toJsonThemeForBothModes,
   toScssVariables,
+  toScssVariablesForBothModes,
   toTailwindTheme,
+  toTailwindThemeForBothModes,
 } from '../../composables/useThemeExporter'
 import AppSegmentedControl from '../controls/AppSegmentedControl.vue'
 
 type ExportFormat = 'css' | 'scss' | 'tailwind' | 'json'
+type ExportScope = 'current' | 'both'
 
 const EXPORT_FORMAT_OPTIONS: { value: ExportFormat; label: string }[] = [
   { value: 'css', label: 'CSS' },
@@ -21,11 +26,29 @@ const EXPORT_FORMAT_OPTIONS: { value: ExportFormat; label: string }[] = [
   { value: 'json', label: 'JSON' },
 ]
 
-const EXPORTERS: Record<ExportFormat, (themeVariables: Record<string, string>) => string> = {
+const EXPORT_SCOPE_OPTIONS: { value: ExportScope; label: string }[] = [
+  { value: 'current', label: 'current theme' },
+  { value: 'both', label: 'light + dark' },
+]
+
+const SINGLE_MODE_EXPORTERS: Record<
+  ExportFormat,
+  (themeVariables: Record<string, string>) => string
+> = {
   css: toCssVariables,
   scss: toScssVariables,
   tailwind: toTailwindTheme,
   json: toJsonTheme,
+}
+
+const BOTH_MODES_EXPORTERS: Record<
+  ExportFormat,
+  (light: Record<string, string>, dark: Record<string, string>) => string
+> = {
+  css: toCssVariablesForBothModes,
+  scss: toScssVariablesForBothModes,
+  tailwind: toTailwindThemeForBothModes,
+  json: toJsonThemeForBothModes,
 }
 
 const EXPORT_FORMAT_FILES: Record<ExportFormat, { fileName: string; mimeType: string }> = {
@@ -37,16 +60,32 @@ const EXPORT_FORMAT_FILES: Record<ExportFormat, { fileName: string; mimeType: st
 
 const store = usePaletteStore()
 const selectedFormat = ref<ExportFormat>('css')
+const selectedScope = ref<ExportScope>('current')
 
-const exportedSnippet = computed(() => EXPORTERS[selectedFormat.value](store.themeVariables))
+const exportedSnippet = computed(() =>
+  selectedScope.value === 'both'
+    ? BOTH_MODES_EXPORTERS[selectedFormat.value](
+        store.lightThemeVariables,
+        store.darkThemeVariables,
+      )
+    : SINGLE_MODE_EXPORTERS[selectedFormat.value](store.themeVariables),
+)
 
-const { copy, copied, isSupported: isCopySupported } = useClipboard({
+const {
+  copy,
+  copied,
+  isSupported: isCopySupported,
+} = useClipboard({
   source: exportedSnippet,
   legacy: true,
 })
 
 function onFormatChange(value: string) {
   selectedFormat.value = value as ExportFormat
+}
+
+function onScopeChange(value: string) {
+  selectedScope.value = value as ExportScope
 }
 
 function onDownload() {
@@ -58,13 +97,25 @@ function onDownload() {
 <template>
   <div class="export-panel">
     <div class="export-panel__header">
-      <span id="export-format" class="export-panel__label">Export</span>
-      <AppSegmentedControl
-        :options="EXPORT_FORMAT_OPTIONS"
-        :model-value="selectedFormat"
-        aria-labelledby="export-format"
-        @update:model-value="onFormatChange"
-      />
+      <div class="export-panel__control">
+        <span id="export-format" class="export-panel__label">Export</span>
+        <AppSegmentedControl
+          :options="EXPORT_FORMAT_OPTIONS"
+          :model-value="selectedFormat"
+          aria-labelledby="export-format"
+          @update:model-value="onFormatChange"
+        />
+      </div>
+
+      <div class="export-panel__control">
+        <span id="export-scope" class="export-panel__label">Scope</span>
+        <AppSegmentedControl
+          :options="EXPORT_SCOPE_OPTIONS"
+          :model-value="selectedScope"
+          aria-labelledby="export-scope"
+          @update:model-value="onScopeChange"
+        />
+      </div>
     </div>
 
     <div class="export-panel__code-wrap">
@@ -78,7 +129,11 @@ function onDownload() {
           :aria-label="copied ? 'Copied' : 'Copy to clipboard'"
           @click="copy()"
         >
-          <component :is="copied ? Check : Copy" class="export-panel__action-icon" aria-hidden="true" />
+          <component
+            :is="copied ? Check : Copy"
+            class="export-panel__action-icon"
+            aria-hidden="true"
+          />
           {{ copied ? 'Copied' : 'Copy' }}
         </button>
 
@@ -103,6 +158,12 @@ function onDownload() {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+}
+
+.export-panel__control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .export-panel__label {
