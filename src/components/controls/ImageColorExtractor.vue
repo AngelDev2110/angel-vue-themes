@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { ImagePlus } from '@lucide/vue'
 import { usePaletteStore } from '../../stores/paletteStore'
 import { extractDominantColorHex } from '../../composables/useImageColorExtractor'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
 const isExtracting = ref(false)
@@ -30,7 +31,8 @@ async function onFileChange(event: Event) {
 
 <template>
   <div class="image-color-extractor">
-    <label
+    <AppChipButton
+      tag="label"
       class="image-color-extractor__upload"
       :class="{ 'image-color-extractor__upload--busy': isExtracting }"
     >
@@ -43,7 +45,7 @@ async function onFileChange(event: Event) {
       />
       <ImagePlus class="image-color-extractor__icon" aria-hidden="true" />
       {{ isExtracting ? 'Extracting…' : 'From image' }}
-    </label>
+    </AppChipButton>
 
     <p v-if="errorMessage" class="image-color-extractor__error" role="alert">{{ errorMessage }}</p>
   </div>
@@ -54,28 +56,6 @@ async function onFileChange(event: Event) {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-}
-
-.image-color-extractor__upload {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  border-radius: 0.5rem;
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.image-color-extractor__upload:hover {
-  border-color: color-mix(in oklch, var(--color-text) 35%, transparent);
 }
 
 .image-color-extractor__upload--busy {

@@ -6,6 +6,7 @@ import { usePaletteStore } from '../../stores/paletteStore'
 import { hexToOklch, oklchToHex } from '../../composables/useColorMath'
 import { generateHarmony } from '../../composables/useHarmonyGenerator'
 import { applyAdjustment, NO_ADJUSTMENT } from '../../composables/useColorFineTuning'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
 const pendingDeleteId = ref<string | null>(null)
@@ -58,10 +59,10 @@ function onDeleteClick(id: string) {
   <div class="saved-palettes">
     <div class="saved-palettes__header">
       <span class="saved-palettes__label">Saved palettes</span>
-      <button type="button" class="saved-palettes__save" @click="onSave">
+      <AppChipButton class="saved-palettes__save" @click="onSave">
         <BookmarkPlus class="saved-palettes__save-icon" aria-hidden="true" />
         Save current
-      </button>
+      </AppChipButton>
     </div>
 
     <p v-if="savedPalettePreviews.length === 0" class="saved-palettes__empty">
@@ -131,29 +132,6 @@ function onDeleteClick(id: string) {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: color-mix(in oklch, var(--color-text) 60%, transparent);
-}
-
-.saved-palettes__save {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.35rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.saved-palettes__save:hover {
-  background-color: color-mix(in oklch, var(--color-text) 8%, var(--color-surface));
 }
 
 .saved-palettes__save-icon {

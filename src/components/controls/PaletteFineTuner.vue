@@ -6,6 +6,7 @@ import {
   NO_ADJUSTMENT,
   type OklchAdjustment,
 } from '../../composables/useColorFineTuning'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
 
@@ -67,14 +68,14 @@ function onSliderInput(specimen: Specimen, axis: keyof OklchAdjustment, event: E
       <div class="fine-tuner__header">
         <span class="fine-tuner__swatch" :style="{ backgroundColor: specimen.hex }" />
         <span class="fine-tuner__number">SPECIMEN {{ specimen.number }}</span>
-        <button
+        <AppChipButton
           v-if="specimen.adjusted"
-          type="button"
+          variant="ghost"
           class="fine-tuner__reset"
           @click="store.resetFineTuneAdjustment(specimen.index)"
         >
           Reset
-        </button>
+        </AppChipButton>
       </div>
 
       <div class="fine-tuner__sliders">
@@ -162,24 +163,6 @@ function onSliderInput(specimen: Specimen, axis: keyof OklchAdjustment, event: E
 
 .fine-tuner__reset {
   margin-left: auto;
-  padding: 0.1rem 0.5rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 20%, transparent);
-  border-radius: 999px;
-  background: transparent;
-  color: color-mix(in oklch, var(--color-text) 70%, transparent);
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
-}
-
-.fine-tuner__reset:hover {
-  background-color: color-mix(in oklch, var(--color-text) 10%, transparent);
-  color: var(--color-text);
 }
 
 .fine-tuner__sliders {

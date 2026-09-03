@@ -4,6 +4,7 @@ import { onClickOutside } from '@vueuse/core'
 import { Sun, Moon, Monitor } from '@lucide/vue'
 import { usePaletteStore } from '../../stores/paletteStore'
 import AppSegmentedControl from './AppSegmentedControl.vue'
+import AppChipButton from './AppChipButton.vue'
 
 const store = usePaletteStore()
 
@@ -47,8 +48,8 @@ function onThemeModeChange(value: string) {
     />
 
     <div ref="dropdownRef" class="theme-mode-toggle__dropdown">
-      <button
-        type="button"
+      <AppChipButton
+        variant="background"
         class="theme-mode-toggle__trigger"
         aria-haspopup="listbox"
         :aria-expanded="isMenuOpen"
@@ -60,7 +61,7 @@ function onThemeModeChange(value: string) {
         <component :is="currentOption.icon" class="theme-mode-toggle__icon" aria-hidden="true" />
         {{ currentOption.label }}
         <span class="theme-mode-toggle__chevron" :class="{ 'theme-mode-toggle__chevron--open': isMenuOpen }" />
-      </button>
+      </AppChipButton>
 
       <ul
         v-if="isMenuOpen"
@@ -105,22 +106,6 @@ function onThemeModeChange(value: string) {
 .theme-mode-toggle__dropdown {
   display: none;
   position: relative;
-}
-
-.theme-mode-toggle__trigger {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.7rem;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in oklch, var(--color-text) 15%, transparent);
-  background-color: var(--color-background);
-  color: var(--color-text);
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  cursor: pointer;
 }
 
 .theme-mode-toggle__icon {
