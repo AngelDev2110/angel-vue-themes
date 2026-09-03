@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import ColorPicker from './components/controls/ColorPicker.vue'
 import ThemeModeToggle from './components/controls/ThemeModeToggle.vue'
+import SavedPalettes from './components/controls/SavedPalettes.vue'
 import ExportPanel from './components/export/ExportPanel.vue'
 import PaletteSwatches from './components/preview/PaletteSwatches.vue'
 import AppButton from './components/preview/AppButton.vue'
@@ -20,7 +21,9 @@ import { usePaletteStore } from './stores/paletteStore'
 const store = usePaletteStore()
 const signupEmail = ref('')
 
-const wheelColors = computed(() => store.palette.map((hex, index) => ({ label: String(index), hex })))
+const wheelColors = computed(() =>
+  store.palette.map((hex, index) => ({ label: String(index), hex })),
+)
 
 useThemeInjector()
 </script>
@@ -32,113 +35,119 @@ useThemeInjector()
   </AppNavbar>
 
   <main>
-    <section class="panel">
-      <p class="panel__eyebrow">Theme editor</p>
-      <p class="panel__description">
-        Pick a base color and a harmony. Everything below &mdash; including the live page at the
-        bottom &mdash; is derived from these two values.
-      </p>
+    <div class="workspace">
+      <section class="panel">
+        <p class="panel__eyebrow">Theme editor</p>
+        <p class="panel__description">
+          Pick a base color and a harmony. Everything below &mdash; including the live page at the
+          bottom &mdash; is derived from these two values.
+        </p>
 
-      <ColorPicker class="panel__controls" />
+        <ColorPicker class="panel__controls" />
 
-      <div class="panel__diagram">
-        <div class="panel__wheel">
-          <p class="panel__section-label">Hue map</p>
-          <AppHueWheel :colors="wheelColors" />
-          <p class="panel__caption">Each marker is one generated color, plotted at its OKLCH hue.</p>
-        </div>
-
-        <div class="panel__specimens">
-          <p class="panel__section-label">Generated palette</p>
-          <PaletteSwatches />
-        </div>
-      </div>
-
-      <ExportPanel class="panel__export" />
-    </section>
-
-    <section class="stage">
-      <p class="stage__caption">&#9656; Rendered with this theme</p>
-
-      <div class="stage__frame">
-        <AppHero>
-          <template #title>Ship a themed product in minutes</template>
-          Every color on this page comes from the one base color you picked above.
-          <template #actions>
-            <AppInput
-              id="signup-email"
-              v-model="signupEmail"
-              type="email"
-              placeholder="you@company.com"
-              class="stage__signup-input"
-            />
-            <AppButton variant="primary">Get started</AppButton>
-          </template>
-        </AppHero>
-
-        <div class="pricing">
-          <AppCard class="pricing__card">
-            <template #title>Starter</template>
-            For solo builders trying things out.
-            <div class="pricing__actions">
-              <AppButton variant="primary">Choose Starter</AppButton>
-            </div>
-          </AppCard>
-
-          <AppCard v-if="store.semanticPalette.secondary" class="pricing__card">
-            <template #title>
-              <span class="pricing__title-row">
-                Growth
-                <AppBadge variant="secondary">Popular</AppBadge>
-              </span>
-            </template>
-            For teams that outgrew the basics.
-            <div class="pricing__actions">
-              <AppButton variant="secondary">Choose Growth</AppButton>
-            </div>
-          </AppCard>
-
-          <AppCard v-if="store.semanticPalette.tertiary" class="pricing__card">
-            <template #title>Enterprise</template>
-            For organizations with custom needs.
-            <div class="pricing__actions">
-              <AppButton variant="tertiary">Contact sales</AppButton>
-            </div>
-          </AppCard>
-        </div>
-
-        <div class="status-feedback">
-          <AppAlert variant="success">
-            <template #title>Deploy complete</template>
-            Your theme is live on the production domain.
-          </AppAlert>
-          <AppAlert variant="warning">
-            <template #title>Contrast is borderline</template>
-            The Secondary role falls just under WCAG AA against this background.
-          </AppAlert>
-          <AppAlert variant="error">
-            <template #title>Export failed</template>
-            Could not reach the download service. Try again in a moment.
-          </AppAlert>
-          <AppAlert variant="info">
-            <template #title>New harmony available</template>
-            Split-complementary now generates a three-color palette.
-          </AppAlert>
-        </div>
-
-        <AppCard class="testimonial">
-          <div class="testimonial__body">
-            <AppAvatar name="Ada Lovelace" />
-            <div>
-              <p class="testimonial__quote">
-                "We swapped our brand color and the entire product re-themed itself in seconds."
-              </p>
-              <p class="testimonial__author">Ada Lovelace &mdash; Design Lead</p>
-            </div>
+        <div class="panel__diagram">
+          <div class="panel__wheel">
+            <p class="panel__section-label">Hue map</p>
+            <AppHueWheel :colors="wheelColors" />
+            <p class="panel__caption">
+              Each marker is one generated color, plotted at its OKLCH hue.
+            </p>
           </div>
-        </AppCard>
-      </div>
-    </section>
+
+          <div class="panel__specimens">
+            <p class="panel__section-label">Generated palette</p>
+            <PaletteSwatches />
+          </div>
+        </div>
+
+        <SavedPalettes class="panel__saved" />
+
+        <ExportPanel class="panel__export" />
+      </section>
+
+      <section class="stage">
+        <p class="stage__caption">&#9656; Rendered with this theme</p>
+
+        <div class="stage__frame">
+          <AppHero>
+            <template #title>Ship a themed product in minutes</template>
+            Every color on this page comes from the one base color you picked above.
+            <template #actions>
+              <AppInput
+                id="signup-email"
+                v-model="signupEmail"
+                type="email"
+                placeholder="you@company.com"
+                class="stage__signup-input"
+              />
+              <AppButton variant="primary">Get started</AppButton>
+            </template>
+          </AppHero>
+
+          <div class="pricing">
+            <AppCard class="pricing__card">
+              <template #title>Starter</template>
+              For solo builders trying things out.
+              <div class="pricing__actions">
+                <AppButton variant="primary">Choose Starter</AppButton>
+              </div>
+            </AppCard>
+
+            <AppCard v-if="store.semanticPalette.secondary" class="pricing__card">
+              <template #title>
+                <span class="pricing__title-row">
+                  Growth
+                  <AppBadge variant="secondary">Popular</AppBadge>
+                </span>
+              </template>
+              For teams that outgrew the basics.
+              <div class="pricing__actions">
+                <AppButton variant="secondary">Choose Growth</AppButton>
+              </div>
+            </AppCard>
+
+            <AppCard v-if="store.semanticPalette.tertiary" class="pricing__card">
+              <template #title>Enterprise</template>
+              For organizations with custom needs.
+              <div class="pricing__actions">
+                <AppButton variant="tertiary">Contact sales</AppButton>
+              </div>
+            </AppCard>
+          </div>
+
+          <div class="status-feedback">
+            <AppAlert variant="success">
+              <template #title>Deploy complete</template>
+              Your theme is live on the production domain.
+            </AppAlert>
+            <AppAlert variant="warning">
+              <template #title>Contrast is borderline</template>
+              The Secondary role falls just under WCAG AA against this background.
+            </AppAlert>
+            <AppAlert variant="error">
+              <template #title>Export failed</template>
+              Could not reach the download service. Try again in a moment.
+            </AppAlert>
+            <AppAlert variant="info">
+              <template #title>New harmony available</template>
+              Split-complementary now generates a three-color palette.
+            </AppAlert>
+          </div>
+
+          <AppCard class="testimonial">
+            <div class="testimonial__body">
+              <AppAvatar name="Ada Lovelace" />
+              <div>
+                <p class="testimonial__quote">
+                  "We swapped our brand color and the entire product re-themed itself in seconds."
+                </p>
+                <p class="testimonial__author">Ada Lovelace &mdash; Design Lead</p>
+              </div>
+            </div>
+          </AppCard>
+        </div>
+      </section>
+    </div>
   </main>
 
   <AppFooter>
@@ -194,6 +203,11 @@ useThemeInjector()
   display: flex;
   flex-wrap: wrap;
   gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.panel__saved {
+  max-width: 34rem;
   margin-bottom: 2.5rem;
 }
 
@@ -311,5 +325,29 @@ useThemeInjector()
   margin: 0;
   font-size: 0.85rem;
   color: color-mix(in oklch, var(--color-text) 70%, transparent);
+}
+
+@media (min-width: 80rem) {
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(26rem, 34rem) 1fr;
+    align-items: start;
+    gap: 2.5rem;
+    max-width: 100rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .panel,
+  .stage {
+    max-width: none;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .stage {
+    border-top: none;
+  }
 }
 </style>
