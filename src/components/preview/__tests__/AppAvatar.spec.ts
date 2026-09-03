@@ -20,4 +20,11 @@ describe('AppAvatar', () => {
 
     expect(wrapper.attributes('title')).toBe('Ada Lovelace')
   })
+
+  it('exposes the full name as an accessible label, since screen readers do not reliably read "title"', () => {
+    const wrapper = mount(AppAvatar, { props: { name: 'Ada Lovelace' } })
+
+    expect(wrapper.attributes('role')).toBe('img')
+    expect(wrapper.attributes('aria-label')).toBe('Ada Lovelace')
+  })
 })

@@ -8,13 +8,21 @@ const store = usePaletteStore()
 const openCheckLabel = ref<string | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 
+const POPOVER_ID_UNSAFE_CHARACTERS = /[^a-z0-9]+/g
+
+function toPopoverId(label: string): string {
+  return `contrast-popover-${label.toLowerCase().replace(POPOVER_ID_UNSAFE_CHARACTERS, '-')}`
+}
+
 function toggleCheck(label: string) {
   openCheckLabel.value = openCheckLabel.value === label ? null : label
 }
 
-onClickOutside(listRef, () => {
+function closePopover() {
   openCheckLabel.value = null
-})
+}
+
+onClickOutside(listRef, closePopover)
 
 interface ContrastCheck {
   label: string
@@ -72,7 +80,9 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
           type="button"
           class="contrast-check__trigger"
           :aria-expanded="openCheckLabel === check.label"
+          :aria-controls="openCheckLabel === check.label ? toPopoverId(check.label) : undefined"
           @click="toggleCheck(check.label)"
+          @keydown.esc="closePopover"
         >
           <span class="contrast-check__label">{{ check.label }}</span>
           <span class="contrast-check__ratio">{{ check.ratio.toFixed(1) }}:1</span>
@@ -84,7 +94,11 @@ const roleCheckLabels = computed(() => roleChecks.value.map((check) => check.lab
           </span>
         </button>
 
-        <div v-if="openCheckLabel === check.label" class="contrast-check__popover">
+        <div
+          v-if="openCheckLabel === check.label"
+          :id="toPopoverId(check.label)"
+          class="contrast-check__popover"
+        >
           <div class="contrast-check__color-row">
             <span class="contrast-check__swatch" :style="{ backgroundColor: check.foreground }" />
             <span class="contrast-check__color-role">Text</span>

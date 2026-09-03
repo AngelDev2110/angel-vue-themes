@@ -162,12 +162,12 @@ useThemeInjector()
 
           <AppCard class="testimonial">
             <div class="testimonial__body">
-              <AppAvatar name="Ada Lovelace" />
+              <AppAvatar name="Angel DLT" />
               <div>
                 <p class="testimonial__quote">
                   "We swapped our brand color and the entire product re-themed itself in seconds."
                 </p>
-                <p class="testimonial__author">Ada Lovelace &mdash; Design Lead</p>
+                <p class="testimonial__author">Angel De La Torre &mdash; Frontend Dev Lead</p>
               </div>
             </div>
           </AppCard>

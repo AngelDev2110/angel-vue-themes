@@ -14,7 +14,7 @@ const initials = computed(() =>
 </script>
 
 <template>
-  <span class="app-avatar" :title="name">{{ initials }}</span>
+  <span class="app-avatar" role="img" :aria-label="name" :title="name">{{ initials }}</span>
 </template>
 
 <style scoped>

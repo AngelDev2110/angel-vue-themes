@@ -24,9 +24,13 @@ onClickOutside(dropdownRef, () => {
   isMenuOpen.value = false
 })
 
+function closeMenu() {
+  isMenuOpen.value = false
+}
+
 function onThemeModeChange(value: string) {
   store.setThemeMode(value as 'light' | 'dark' | 'auto')
-  isMenuOpen.value = false
+  closeMenu()
 }
 </script>
 
@@ -48,15 +52,23 @@ function onThemeModeChange(value: string) {
         class="theme-mode-toggle__trigger"
         aria-haspopup="listbox"
         :aria-expanded="isMenuOpen"
+        :aria-controls="isMenuOpen ? 'theme-mode-menu' : undefined"
         aria-labelledby="theme-mode"
         @click="isMenuOpen = !isMenuOpen"
+        @keydown.esc="closeMenu"
       >
         <component :is="currentOption.icon" class="theme-mode-toggle__icon" aria-hidden="true" />
         {{ currentOption.label }}
         <span class="theme-mode-toggle__chevron" :class="{ 'theme-mode-toggle__chevron--open': isMenuOpen }" />
       </button>
 
-      <ul v-if="isMenuOpen" class="theme-mode-toggle__menu" role="listbox" aria-labelledby="theme-mode">
+      <ul
+        v-if="isMenuOpen"
+        id="theme-mode-menu"
+        class="theme-mode-toggle__menu"
+        role="listbox"
+        aria-labelledby="theme-mode"
+      >
         <li
           v-for="option in THEME_MODE_OPTIONS"
           :key="option.value"
