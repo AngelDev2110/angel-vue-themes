@@ -81,4 +81,54 @@ describe('ContrastReport', () => {
       'Primary, Secondary, Tertiary',
     )
   })
+
+  function findCheck(wrapper: ReturnType<typeof mount>, label: string) {
+    const check = wrapper
+      .findAll('.contrast-check')
+      .find((node) => node.find('.contrast-check__label').text() === label)
+    if (!check) throw new Error(`Expected a "${label}" contrast check`)
+
+    return check
+  }
+
+  it('hides the color popover by default', () => {
+    const wrapper = mount(ContrastReport)
+
+    expect(wrapper.find('.contrast-check__popover').exists()).toBe(false)
+  })
+
+  it('shows the compared text and background colors when a check is clicked', async () => {
+    const store = usePaletteStore()
+    const wrapper = mount(ContrastReport)
+    const primaryCheck = findCheck(wrapper, 'Primary')
+
+    await primaryCheck.find('.contrast-check__trigger').trigger('click')
+
+    const popoverText = primaryCheck.find('.contrast-check__popover').text()
+    expect(popoverText).toContain(store.onColorPalette['on-primary'])
+    expect(popoverText).toContain(store.semanticPalette.primary)
+  })
+
+  it('closes the popover when its trigger is clicked again', async () => {
+    const wrapper = mount(ContrastReport)
+    const trigger = findCheck(wrapper, 'Primary').find('.contrast-check__trigger')
+
+    await trigger.trigger('click')
+    expect(wrapper.find('.contrast-check__popover').exists()).toBe(true)
+
+    await trigger.trigger('click')
+    expect(wrapper.find('.contrast-check__popover').exists()).toBe(false)
+  })
+
+  it('keeps only one popover open at a time', async () => {
+    const wrapper = mount(ContrastReport)
+    const primaryCheck = findCheck(wrapper, 'Primary')
+    const secondaryCheck = findCheck(wrapper, 'Secondary')
+
+    await primaryCheck.find('.contrast-check__trigger').trigger('click')
+    await secondaryCheck.find('.contrast-check__trigger').trigger('click')
+
+    expect(primaryCheck.find('.contrast-check__popover').exists()).toBe(false)
+    expect(secondaryCheck.find('.contrast-check__popover').exists()).toBe(true)
+  })
 })
