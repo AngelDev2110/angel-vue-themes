@@ -11,6 +11,7 @@ import AppNavbar from './components/preview/AppNavbar.vue'
 import AppInput from './components/preview/AppInput.vue'
 import AppHero from './components/preview/AppHero.vue'
 import AppAvatar from './components/preview/AppAvatar.vue'
+import AppAlert from './components/preview/AppAlert.vue'
 import AppFooter from './components/preview/AppFooter.vue'
 import AppHueWheel from './components/preview/AppHueWheel.vue'
 import { useThemeInjector } from './composables/useThemeInjector'
@@ -104,6 +105,25 @@ useThemeInjector()
               <AppButton variant="tertiary">Contact sales</AppButton>
             </div>
           </AppCard>
+        </div>
+
+        <div class="status-feedback">
+          <AppAlert variant="success">
+            <template #title>Deploy complete</template>
+            Your theme is live on the production domain.
+          </AppAlert>
+          <AppAlert variant="warning">
+            <template #title>Contrast is borderline</template>
+            The Secondary role falls just under WCAG AA against this background.
+          </AppAlert>
+          <AppAlert variant="error">
+            <template #title>Export failed</template>
+            Could not reach the download service. Try again in a moment.
+          </AppAlert>
+          <AppAlert variant="info">
+            <template #title>New harmony available</template>
+            Split-complementary now generates a three-color palette.
+          </AppAlert>
         </div>
 
         <AppCard class="testimonial">
@@ -262,6 +282,13 @@ useThemeInjector()
 
 .pricing__actions {
   margin-top: 1rem;
+}
+
+.status-feedback {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.75rem;
+  margin: 2rem 1.5rem 0;
 }
 
 .testimonial {

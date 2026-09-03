@@ -36,4 +36,24 @@ describe('ColorPicker', () => {
 
     expect(store.harmonyType).toBe('triadic')
   })
+
+  it('defaults the status hue mode selector to "fixed"', () => {
+    const wrapper = mount(ColorPicker)
+
+    const fixedOption = wrapper.findAll('[role="radio"]').find((option) => option.text() === 'fixed')
+
+    expect(fixedOption?.attributes('aria-checked')).toBe('true')
+  })
+
+  it('updates the store status hue mode when the selection changes', async () => {
+    const wrapper = mount(ColorPicker)
+    const store = usePaletteStore()
+
+    const dynamicOption = wrapper
+      .findAll('[role="radio"]')
+      .find((option) => option.text() === 'dynamic')
+    await dynamicOption?.trigger('click')
+
+    expect(store.statusHueMode).toBe('dynamic')
+  })
 })
