@@ -55,7 +55,7 @@ export const usePaletteStore = defineStore('palette', () => {
     return generateNeutralRoles(hexToOklch(baseColor.value), mode)
   }
 
-  function buildThemeVariables(mode: ThemeMode) {
+  function buildThemeVariables(mode: ThemeMode): Record<string, string> {
     const statusRoles = buildStatusPalette(mode)
     const onColorRoles = generateOnColorRoles({ ...semanticPalette.value, ...statusRoles })
     const neutralRoles = buildNeutralPalette(mode)

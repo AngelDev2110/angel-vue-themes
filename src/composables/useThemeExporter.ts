@@ -48,12 +48,18 @@ export function diffThemeVariables(
   const lightOnly: Record<string, string> = {}
   const darkOnly: Record<string, string> = {}
 
-  Object.keys(lightThemeVariables).forEach((role) => {
-    if (lightThemeVariables[role] === darkThemeVariables[role]) {
-      shared[role] = lightThemeVariables[role]
+  Object.entries(lightThemeVariables).forEach(([role, lightValue]) => {
+    const darkValue = darkThemeVariables[role]
+
+    if (darkValue === undefined) {
+      throw new Error(`Missing dark-mode value for role "${role}"`)
+    }
+
+    if (lightValue === darkValue) {
+      shared[role] = lightValue
     } else {
-      lightOnly[role] = lightThemeVariables[role]
-      darkOnly[role] = darkThemeVariables[role]
+      lightOnly[role] = lightValue
+      darkOnly[role] = darkValue
     }
   })
 

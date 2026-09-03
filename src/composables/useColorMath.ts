@@ -182,6 +182,18 @@ export function getContrastRatio(a: RGB, b: RGB): number {
   return (lighter + WCAG_CONTRAST_OFFSET) / (darker + WCAG_CONTRAST_OFFSET)
 }
 
+export type WcagLevel = 'AAA' | 'AA' | 'Fail'
+
+const WCAG_AA_MIN_RATIO = 4.5
+const WCAG_AAA_MIN_RATIO = 7
+
+export function getWcagLevel(contrastRatio: number): WcagLevel {
+  if (contrastRatio >= WCAG_AAA_MIN_RATIO) return 'AAA'
+  if (contrastRatio >= WCAG_AA_MIN_RATIO) return 'AA'
+
+  return 'Fail'
+}
+
 const DISPLAYABLE_CHANNEL_RANGE = { min: 0, max: 255 }
 const GAMUT_CHROMA_SEARCH_ITERATIONS = 16
 const IN_GAMUT_CHROMA = 0

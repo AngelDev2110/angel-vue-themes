@@ -183,14 +183,17 @@ describe('usePaletteStore', () => {
 
     store.saveCurrentPalette()
 
+    const [savedEntry] = store.savedPalettes
+    if (!savedEntry) throw new Error('Expected a saved palette entry')
+
     expect(store.savedPalettes).toHaveLength(1)
-    expect(store.savedPalettes[0]).toMatchObject({
+    expect(savedEntry).toMatchObject({
       baseColor: '#cc3366',
       harmonyType: 'triadic',
       statusHueMode: 'dynamic',
     })
-    expect(store.savedPalettes[0].id).toBeTruthy()
-    expect(store.savedPalettes[0].savedAt).toBeTruthy()
+    expect(savedEntry.id).toBeTruthy()
+    expect(savedEntry.savedAt).toBeTruthy()
   })
 
   it('does nothing when saving the same palette twice in a row', () => {
@@ -218,13 +221,15 @@ describe('usePaletteStore', () => {
     store.setHarmonyType('triadic')
     store.setStatusHueMode('dynamic')
     store.saveCurrentPalette()
-    const savedId = store.savedPalettes[0].id
+
+    const [savedEntry] = store.savedPalettes
+    if (!savedEntry) throw new Error('Expected a saved palette entry')
 
     store.setBaseColor('#3366cc')
     store.setHarmonyType('complementary')
     store.setStatusHueMode('fixed')
 
-    store.loadSavedPalette(savedId)
+    store.loadSavedPalette(savedEntry.id)
 
     expect(store.baseColor).toBe('#cc3366')
     expect(store.harmonyType).toBe('triadic')
@@ -243,9 +248,11 @@ describe('usePaletteStore', () => {
   it('removes a saved palette by id', () => {
     const store = usePaletteStore()
     store.saveCurrentPalette()
-    const savedId = store.savedPalettes[0].id
 
-    store.deleteSavedPalette(savedId)
+    const [savedEntry] = store.savedPalettes
+    if (!savedEntry) throw new Error('Expected a saved palette entry')
+
+    store.deleteSavedPalette(savedEntry.id)
 
     expect(store.savedPalettes).toEqual([])
   })

@@ -13,6 +13,7 @@ import AppInput from './components/preview/AppInput.vue'
 import AppHero from './components/preview/AppHero.vue'
 import AppAvatar from './components/preview/AppAvatar.vue'
 import AppAlert from './components/preview/AppAlert.vue'
+import ContrastReport from './components/preview/ContrastReport.vue'
 import AppFooter from './components/preview/AppFooter.vue'
 import AppHueWheel from './components/preview/AppHueWheel.vue'
 import { useThemeInjector } from './composables/useThemeInjector'
@@ -58,6 +59,11 @@ useThemeInjector()
             <p class="panel__section-label">Generated palette</p>
             <PaletteSwatches />
           </div>
+        </div>
+
+        <div class="panel__contrast">
+          <p class="panel__section-label">Contrast (WCAG)</p>
+          <ContrastReport />
         </div>
 
         <SavedPalettes class="panel__saved" />
@@ -203,6 +209,13 @@ useThemeInjector()
   display: flex;
   flex-wrap: wrap;
   gap: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.panel__contrast {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 2.5rem;
 }
 
