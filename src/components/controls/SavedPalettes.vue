@@ -4,6 +4,7 @@ import { BookmarkPlus, Trash2 } from '@lucide/vue'
 import { usePaletteStore } from '../../stores/paletteStore'
 import { hexToOklch, oklchToHex } from '../../composables/useColorMath'
 import { generateHarmony } from '../../composables/useHarmonyGenerator'
+import { applyAdjustment, NO_ADJUSTMENT } from '../../composables/useColorFineTuning'
 
 const store = usePaletteStore()
 
@@ -19,7 +20,9 @@ const savedAtFormatter = new Intl.DateTimeFormat(undefined, SAVED_AT_FORMAT_OPTI
 const savedPalettePreviews = computed(() =>
   store.savedPalettes.map((saved) => ({
     ...saved,
-    swatches: generateHarmony(saved.harmonyType, hexToOklch(saved.baseColor)).map(oklchToHex),
+    swatches: generateHarmony(saved.harmonyType, hexToOklch(saved.baseColor)).map((oklch, index) =>
+      oklchToHex(applyAdjustment(oklch, saved.fineTuneAdjustments?.[index] ?? NO_ADJUSTMENT)),
+    ),
     savedAtLabel: savedAtFormatter.format(new Date(saved.savedAt)),
   })),
 )

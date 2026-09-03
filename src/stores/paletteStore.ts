@@ -7,14 +7,22 @@ import { mapPaletteToRoles } from '../composables/useSemanticPalette'
 import { generateNeutralRoles, type ThemeMode } from '../composables/useNeutralPalette'
 import { generateStatusRoles } from '../composables/useStatusPalette'
 import { generateOnColorRoles } from '../composables/useOnColorRoles'
+import {
+  applyAdjustment,
+  NO_ADJUSTMENT,
+  type OklchAdjustment,
+} from '../composables/useColorFineTuning'
 
 export type StatusHueMode = 'fixed' | 'dynamic'
+
+export type FineTuneAdjustments = Record<number, OklchAdjustment>
 
 export interface SavedPalette {
   id: string
   baseColor: string
   harmonyType: HarmonyType
   statusHueMode: StatusHueMode
+  fineTuneAdjustments: FineTuneAdjustments
   savedAt: string
 }
 
@@ -31,11 +39,18 @@ export const usePaletteStore = defineStore('palette', () => {
   const harmonyType = ref<HarmonyType>(DEFAULT_HARMONY_TYPE)
   const statusHueMode = ref<StatusHueMode>(DEFAULT_STATUS_HUE_MODE)
   const history = ref<string[]>([])
+  const fineTuneAdjustments = ref<FineTuneAdjustments>({})
   const savedPalettes = useLocalStorage<SavedPalette[]>(SAVED_PALETTES_STORAGE_KEY, [])
   const colorMode = useColorMode({ emitAuto: true })
 
+  const paletteOklch = computed(() =>
+    generateHarmony(harmonyType.value, hexToOklch(baseColor.value)),
+  )
+
   const palette = computed(() =>
-    generateHarmony(harmonyType.value, hexToOklch(baseColor.value)).map(oklchToHex),
+    paletteOklch.value.map((oklch, index) =>
+      oklchToHex(applyAdjustment(oklch, fineTuneAdjustments.value[index] ?? NO_ADJUSTMENT)),
+    ),
   )
 
   const semanticPalette = computed(() => mapPaletteToRoles(harmonyType.value, palette.value))
@@ -101,11 +116,28 @@ export const usePaletteStore = defineStore('palette', () => {
     statusHueMode.value = mode
   }
 
+  function setFineTuneAdjustment(index: number, adjustment: OklchAdjustment) {
+    fineTuneAdjustments.value = { ...fineTuneAdjustments.value, [index]: adjustment }
+  }
+
+  function resetFineTuneAdjustment(index: number) {
+    if (!(index in fineTuneAdjustments.value)) return
+
+    const next = { ...fineTuneAdjustments.value }
+    delete next[index]
+    fineTuneAdjustments.value = next
+  }
+
+  function resetAllFineTuneAdjustments() {
+    fineTuneAdjustments.value = {}
+  }
+
   function isSameAsCurrentPalette(saved: SavedPalette) {
     return (
       saved.baseColor === baseColor.value &&
       saved.harmonyType === harmonyType.value &&
-      saved.statusHueMode === statusHueMode.value
+      saved.statusHueMode === statusHueMode.value &&
+      JSON.stringify(saved.fineTuneAdjustments) === JSON.stringify(fineTuneAdjustments.value)
     )
   }
 
@@ -118,6 +150,7 @@ export const usePaletteStore = defineStore('palette', () => {
       baseColor: baseColor.value,
       harmonyType: harmonyType.value,
       statusHueMode: statusHueMode.value,
+      fineTuneAdjustments: fineTuneAdjustments.value,
       savedAt: new Date().toISOString(),
     }
 
@@ -131,6 +164,7 @@ export const usePaletteStore = defineStore('palette', () => {
     setBaseColor(entry.baseColor)
     setHarmonyType(entry.harmonyType)
     setStatusHueMode(entry.statusHueMode)
+    fineTuneAdjustments.value = entry.fineTuneAdjustments ?? {}
   }
 
   function deleteSavedPalette(id: string) {
@@ -146,7 +180,9 @@ export const usePaletteStore = defineStore('palette', () => {
     harmonyType,
     statusHueMode,
     history,
+    fineTuneAdjustments,
     savedPalettes,
+    paletteOklch,
     palette,
     semanticPalette,
     statusPalette,
@@ -160,6 +196,9 @@ export const usePaletteStore = defineStore('palette', () => {
     setBaseColor,
     setHarmonyType,
     setStatusHueMode,
+    setFineTuneAdjustment,
+    resetFineTuneAdjustment,
+    resetAllFineTuneAdjustments,
     setThemeMode,
     saveCurrentPalette,
     loadSavedPalette,

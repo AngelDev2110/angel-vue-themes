@@ -267,4 +267,91 @@ describe('usePaletteStore', () => {
 
     expect(store.savedPalettes).toHaveLength(20)
   })
+
+  it('starts with no fine-tune adjustments, so the palette matches the raw harmony', () => {
+    const store = usePaletteStore()
+
+    expect(store.fineTuneAdjustments).toEqual({})
+    expect(store.palette[0]).toBe(store.baseColor)
+  })
+
+  it('shifts a single palette color when a fine-tune adjustment is set', () => {
+    const store = usePaletteStore()
+    const originalHex = store.palette[0]
+
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0, h: 0 })
+
+    expect(store.palette[0]).not.toBe(originalHex)
+  })
+
+  it('leaves other palette colors untouched when only one index is adjusted', () => {
+    const store = usePaletteStore()
+    store.setHarmonyType('triadic')
+    const untouchedHex = store.palette[1]
+
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0, h: 0 })
+
+    expect(store.palette[1]).toBe(untouchedHex)
+  })
+
+  it('reverts a single index back to the raw harmony color on reset', () => {
+    const store = usePaletteStore()
+    const originalHex = store.palette[0]
+
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0, h: 0 })
+    store.resetFineTuneAdjustment(0)
+
+    expect(store.palette[0]).toBe(originalHex)
+    expect(store.fineTuneAdjustments).toEqual({})
+  })
+
+  it('clears every adjustment on resetAllFineTuneAdjustments', () => {
+    const store = usePaletteStore()
+    store.setHarmonyType('triadic')
+    const originalPalette = [...store.palette]
+
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0, h: 0 })
+    store.setFineTuneAdjustment(1, { l: 0, c: -0.02, h: 10 })
+    store.resetAllFineTuneAdjustments()
+
+    expect(store.fineTuneAdjustments).toEqual({})
+    expect(store.palette).toEqual(originalPalette)
+  })
+
+  it('keeps a fine-tune adjustment applied after the base color changes', () => {
+    const store = usePaletteStore()
+    store.setFineTuneAdjustment(0, { l: 0.15, c: 0, h: 0 })
+    const adjustedFirstHex = store.palette[0]
+
+    store.setBaseColor('#cc3366')
+
+    expect(store.palette[0]).not.toBe(adjustedFirstHex)
+    expect(store.palette[0]).not.toBe(store.baseColor)
+  })
+
+  it('saves and restores fine-tune adjustments with the rest of the palette', () => {
+    const store = usePaletteStore()
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0.01, h: 5 })
+    store.saveCurrentPalette()
+
+    const [savedEntry] = store.savedPalettes
+    if (!savedEntry) throw new Error('Expected a saved palette entry')
+
+    expect(savedEntry.fineTuneAdjustments).toEqual({ 0: { l: 0.1, c: 0.01, h: 5 } })
+
+    store.resetAllFineTuneAdjustments()
+    store.loadSavedPalette(savedEntry.id)
+
+    expect(store.fineTuneAdjustments).toEqual({ 0: { l: 0.1, c: 0.01, h: 5 } })
+  })
+
+  it('treats a palette with different fine-tune adjustments as a new save', () => {
+    const store = usePaletteStore()
+
+    store.saveCurrentPalette()
+    store.setFineTuneAdjustment(0, { l: 0.1, c: 0, h: 0 })
+    store.saveCurrentPalette()
+
+    expect(store.savedPalettes).toHaveLength(2)
+  })
 })
