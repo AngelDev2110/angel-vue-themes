@@ -43,6 +43,39 @@ describe('ExportPanel', () => {
     expect(JSON.parse(wrapper.find('code').text())).toHaveProperty('color-primary')
   })
 
+  it('defaults to exporting only the current theme', () => {
+    const wrapper = mount(ExportPanel)
+
+    expect(wrapper.find('code').text()).not.toContain('prefers-color-scheme')
+  })
+
+  it('includes both themes in the CSS snippet once "light + dark" scope is picked', async () => {
+    const wrapper = mount(ExportPanel)
+
+    const bothScopeOption = wrapper
+      .findAll('[role="radio"]')
+      .find((option) => option.text() === 'light + dark')
+    await bothScopeOption?.trigger('click')
+
+    expect(wrapper.find('code').text()).toContain('prefers-color-scheme: dark')
+  })
+
+  it('nests both themes under "light" and "dark" keys in the JSON snippet for the "both" scope', async () => {
+    const wrapper = mount(ExportPanel)
+
+    const jsonOption = wrapper.findAll('[role="radio"]').find((option) => option.text() === 'JSON')
+    await jsonOption?.trigger('click')
+    const bothScopeOption = wrapper
+      .findAll('[role="radio"]')
+      .find((option) => option.text() === 'light + dark')
+    await bothScopeOption?.trigger('click')
+
+    const snippet = JSON.parse(wrapper.find('code').text())
+
+    expect(snippet).toHaveProperty('light.color-primary')
+    expect(snippet).toHaveProperty('dark.color-primary')
+  })
+
   it('copies the current snippet to the clipboard and shows a confirmation', async () => {
     const execCommand = vi.fn<Document['execCommand']>().mockReturnValue(true)
     document.execCommand = execCommand

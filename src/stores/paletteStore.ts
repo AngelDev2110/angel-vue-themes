@@ -36,24 +36,38 @@ export const usePaletteStore = defineStore('palette', () => {
     statusHueMode.value === 'dynamic' ? hexToOklch(baseColor.value).h - STATUS_HUE_REFERENCE : 0,
   )
 
-  const statusPalette = computed(() =>
-    generateStatusRoles(resolvedThemeMode.value, statusHueShift.value),
-  )
+  function buildStatusPalette(mode: ThemeMode) {
+    return generateStatusRoles(mode, statusHueShift.value)
+  }
+
+  function buildNeutralPalette(mode: ThemeMode) {
+    return generateNeutralRoles(hexToOklch(baseColor.value), mode)
+  }
+
+  function buildThemeVariables(mode: ThemeMode) {
+    const statusRoles = buildStatusPalette(mode)
+    const onColorRoles = generateOnColorRoles({ ...semanticPalette.value, ...statusRoles })
+    const neutralRoles = buildNeutralPalette(mode)
+
+    return {
+      ...semanticPalette.value,
+      ...statusRoles,
+      ...onColorRoles,
+      ...neutralRoles,
+    }
+  }
+
+  const statusPalette = computed(() => buildStatusPalette(resolvedThemeMode.value))
 
   const onColorPalette = computed(() =>
     generateOnColorRoles({ ...semanticPalette.value, ...statusPalette.value }),
   )
 
-  const neutralPalette = computed(() =>
-    generateNeutralRoles(hexToOklch(baseColor.value), resolvedThemeMode.value),
-  )
+  const neutralPalette = computed(() => buildNeutralPalette(resolvedThemeMode.value))
 
-  const themeVariables = computed(() => ({
-    ...semanticPalette.value,
-    ...statusPalette.value,
-    ...onColorPalette.value,
-    ...neutralPalette.value,
-  }))
+  const themeVariables = computed(() => buildThemeVariables(resolvedThemeMode.value))
+  const lightThemeVariables = computed(() => buildThemeVariables('light'))
+  const darkThemeVariables = computed(() => buildThemeVariables('dark'))
 
   function pushToHistory(hex: string) {
     if (history.value[0] === hex) return
@@ -91,6 +105,8 @@ export const usePaletteStore = defineStore('palette', () => {
     onColorPalette,
     neutralPalette,
     themeVariables,
+    lightThemeVariables,
+    darkThemeVariables,
     themeModePreference,
     resolvedThemeMode,
     setBaseColor,
