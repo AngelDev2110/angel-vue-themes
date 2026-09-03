@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { useColorMode } from '@vueuse/core'
+import { useColorMode, useLocalStorage } from '@vueuse/core'
 import { hexToOklch, oklchToHex } from '../composables/useColorMath'
 import { generateHarmony, type HarmonyType } from '../composables/useHarmonyGenerator'
 import { mapPaletteToRoles } from '../composables/useSemanticPalette'
@@ -10,10 +10,20 @@ import { generateOnColorRoles } from '../composables/useOnColorRoles'
 
 export type StatusHueMode = 'fixed' | 'dynamic'
 
+export interface SavedPalette {
+  id: string
+  baseColor: string
+  harmonyType: HarmonyType
+  statusHueMode: StatusHueMode
+  savedAt: string
+}
+
 const DEFAULT_BASE_COLOR = '#3366cc'
 const DEFAULT_HARMONY_TYPE: HarmonyType = 'complementary'
 const DEFAULT_STATUS_HUE_MODE: StatusHueMode = 'fixed'
 const MAX_HISTORY_LENGTH = 10
+const MAX_SAVED_PALETTES = 20
+const SAVED_PALETTES_STORAGE_KEY = 'palette-editor:saved-palettes'
 const STATUS_HUE_REFERENCE = hexToOklch(DEFAULT_BASE_COLOR).h
 
 export const usePaletteStore = defineStore('palette', () => {
@@ -21,6 +31,7 @@ export const usePaletteStore = defineStore('palette', () => {
   const harmonyType = ref<HarmonyType>(DEFAULT_HARMONY_TYPE)
   const statusHueMode = ref<StatusHueMode>(DEFAULT_STATUS_HUE_MODE)
   const history = ref<string[]>([])
+  const savedPalettes = useLocalStorage<SavedPalette[]>(SAVED_PALETTES_STORAGE_KEY, [])
   const colorMode = useColorMode({ emitAuto: true })
 
   const palette = computed(() =>
@@ -90,6 +101,42 @@ export const usePaletteStore = defineStore('palette', () => {
     statusHueMode.value = mode
   }
 
+  function isSameAsCurrentPalette(saved: SavedPalette) {
+    return (
+      saved.baseColor === baseColor.value &&
+      saved.harmonyType === harmonyType.value &&
+      saved.statusHueMode === statusHueMode.value
+    )
+  }
+
+  function saveCurrentPalette() {
+    const mostRecent = savedPalettes.value[0]
+    if (mostRecent && isSameAsCurrentPalette(mostRecent)) return
+
+    const entry: SavedPalette = {
+      id: crypto.randomUUID(),
+      baseColor: baseColor.value,
+      harmonyType: harmonyType.value,
+      statusHueMode: statusHueMode.value,
+      savedAt: new Date().toISOString(),
+    }
+
+    savedPalettes.value = [entry, ...savedPalettes.value].slice(0, MAX_SAVED_PALETTES)
+  }
+
+  function loadSavedPalette(id: string) {
+    const entry = savedPalettes.value.find((saved) => saved.id === id)
+    if (!entry) return
+
+    setBaseColor(entry.baseColor)
+    setHarmonyType(entry.harmonyType)
+    setStatusHueMode(entry.statusHueMode)
+  }
+
+  function deleteSavedPalette(id: string) {
+    savedPalettes.value = savedPalettes.value.filter((saved) => saved.id !== id)
+  }
+
   function setThemeMode(mode: ThemeMode | 'auto') {
     colorMode.value = mode
   }
@@ -99,6 +146,7 @@ export const usePaletteStore = defineStore('palette', () => {
     harmonyType,
     statusHueMode,
     history,
+    savedPalettes,
     palette,
     semanticPalette,
     statusPalette,
@@ -113,5 +161,8 @@ export const usePaletteStore = defineStore('palette', () => {
     setHarmonyType,
     setStatusHueMode,
     setThemeMode,
+    saveCurrentPalette,
+    loadSavedPalette,
+    deleteSavedPalette,
   }
 })

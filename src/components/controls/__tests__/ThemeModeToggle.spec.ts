@@ -6,6 +6,7 @@ import { usePaletteStore } from '../../../stores/paletteStore'
 
 beforeEach(() => {
   setActivePinia(createPinia())
+  localStorage.clear()
 })
 
 describe('ThemeModeToggle', () => {
