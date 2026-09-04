@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/angel-front-themes/:path*", "destination": "/:path*" },
+    { "source": "/angel-front-themes", "destination": "/" }
+  ]
+}
