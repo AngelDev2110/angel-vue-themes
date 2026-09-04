@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "angel-front-themes.vercel.app" }],
+      "destination": "https://www.angeldlt.dev/angel-front-themes",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     { "source": "/angel-front-themes/:path*", "destination": "/:path*" },
     { "source": "/angel-front-themes", "destination": "/" }
