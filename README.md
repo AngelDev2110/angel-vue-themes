@@ -1,4 +1,7 @@
-# Palette & Theme Editor
+# Angel Front Themes
+
+![CI](https://github.com/AngelDev2110/angel-vue-themes/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/github/license/AngelDev2110/angel-vue-themes)
 
 Pick a base color, get a full UI theme — brand palette, semantic status colors, light/dark neutrals, and WCAG-checked contrast — generated algorithmically and previewed live on real components.
 
@@ -12,7 +15,7 @@ OKLCH is perceptually uniform: the same numeric change produces the same visual 
 
 - **Harmonies over OKLCH** — complementary, analogous, triadic, monochromatic, split-complementary — with hue rotation that stays gamut-safe via binary-search chroma clamping.
 - **Status colors, two modes** — fixed (universal green/amber/red/blue) or dynamic (rotates with the base hue, still gamut-clamped per color).
-- **Real accessibility, not a badge** — WCAG 2.x contrast computed per role, with the formula, spec version, and thresholds documented in-app instead of just asserted.
+- **Accessible, not just checked** — WCAG 2.x contrast computed per role (formula, spec version, and thresholds documented in-app), keyboard-operable dropdowns, ARIA-labeled controls, two-step confirm on destructive actions.
 - **Dual-theme export** — CSS variables, Sass, Tailwind `@theme`, JSON — export the current theme or light + dark together, deduplicated so only the roles that actually differ between modes get duplicated.
 - **Per-color fine-tuning** — nudge lightness, chroma, or hue on any generated color; adjustments are gamut-safe deltas, so they survive a base-color or harmony swap and round-trip through saved palettes.
 - **Dominant color from an image** — upload a photo and it becomes the base color, via a from-scratch histogram over quantized color buckets (no extraction library).
@@ -20,7 +23,14 @@ OKLCH is perceptually uniform: the same numeric change produces the same visual 
 
 ## Stack
 
-Vue 3 (`<script setup>`) · TypeScript · Vite · Pinia · Vitest · ESLint + Prettier · Bun
+![Vue](https://img.shields.io/badge/Vue_3-4FC08D?logo=vuedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Pinia](https://img.shields.io/badge/Pinia-FFD859?logo=pinia&logoColor=black)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)
+![Bun](https://img.shields.io/badge/Bun-000000?logo=bun&logoColor=white)
+
+Composition API throughout, VueUse for `useLocalStorage`/`useColorMode`, no CSS framework — theming is the point, so it's plain CSS custom properties end to end.
 
 ## Getting started
 
@@ -35,14 +45,10 @@ bun run type-check  # vue-tsc
 bun run lint        # oxlint + eslint
 ```
 
-## Roadmap
+## Built in four phases
 
-- [x] Core color math (HEX ↔ RGB ↔ OKLCH), harmony generation, live swatch preview
-- [x] Full theming — light/dark/auto, real components, semantic + status colors
-- [x] Export (CSS/Sass/Tailwind/JSON), local palette saving, WCAG contrast report
-- [x] Manual fine-tuning per color (lightness/chroma/hue sliders, gamut-safe)
-- [x] Dominant color extraction from an uploaded image
+Color core → real theming (light/dark) → image extraction + fine-tuning → export & polish. Each phase shipped with tests before the next started — see the commit history for the build-out.
 
 ## License
 
-MIT
+MIT — built by [Angel De La Torre](https://www.angeldlt.dev/) · [GitHub](https://github.com/AngelDev2110) · [LinkedIn](https://www.linkedin.com/in/angel-de-la-torre-alcantar/)
